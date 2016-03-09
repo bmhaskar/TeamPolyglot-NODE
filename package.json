@@ -1,0 +1,26 @@
+{
+  "name": "book-sharing",
+  "version": "1.0.0",
+  "description": "This is a book sharing application. It functions as a distributed library management, also maintains the personal catelog. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Book",
+    "Sharing",
+    "NodeJs",
+    "Distributed-library"
+  ],
+  "author": "Bharat Mhaskar <bmhaskar@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.15.0",
+    "express": "^4.13.4",
+    "express-winston": "^1.3.0",
+    "mongoose": "^4.4.6",
+    "passport-local": "^1.0.0",
+    "winston": "^2.2.0"
+  }
+}
