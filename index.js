@@ -1,36 +1,40 @@
 'use strict';
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-
 const config = require('./config/config');
-const routes = require('./routes/routes');
-const logger = require('./logger/logger');
+const middleware = require('./middlewares/middleware');
+const User = require('./models/user');
 
-const user = require('./models/user');
 mongoose.connect(config.database.mongoose);
 
 const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
-
-app.use(logger.genericLogger);
-
-app.use('/api', routes);
-app.use('/api/static', express.static(config.publicDir));
-
-app.use(function(req, res) {
-	res.status(404).send({'message': 'Sorry, we cannot find that!', status: false}); 
+app.use(middleware);
+const server = app.listen(config.port, config.host, function () {
+    console.log('Book sharing application started at address: ' + server.address().address + ' port: ' + server.address().port);
 });
+const onError = function onError(error) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-app.use(logger.errorLogger);
+    const bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
 
-app.use(function(err, req, res, next) {
-	res.status(500).send({'message': 'Internal server error.', status: false}); 
-});
-
-app.listen(config.port, function() {
-	console.log('Book sharing application started on port '+ config.port)
-});
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
+server.on('error', onError);
