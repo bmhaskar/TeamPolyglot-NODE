@@ -2,23 +2,63 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const bcrypt = require('bcrypt-nodejs');
+const mongoosePaginate = require('mongoose-paginate');
+
 /**
  * @swagger
  * definition:
+ *   Role:
+ *     type: object
+ *     required:
+ *       - name
+ *     properties:
+ *       name:
+ *         type: string
+ */
+const role = new Schema({
+	name: {type: String, trim: true},
+	_id: false
+}, {timestamp: true});
+
+/**
+ * @swagger
+ * definition:
+ *   ResponseUser:
+ *     type: object
+ *     properties:
+ *       username:
+ *         type: string
+ *       email:
+ *         type: string
+ *       roles:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/Role'
+ *       createdAt:
+ *         type: string
+ *         format: date-time
+ *       updatedAt:
+ *         type: string
+ *         format: date-time
  *   NewUser:
  *     type: object
  *     required:
  *       - username
  *       - password
+ *       - email
  *     properties:
  *       username:
  *         type: string
  *       password:
  *         type: string
  *         format: password
- *       admin:
- *         type: boolean
- *         default: false
+ *       email:
+ *         type: string
+ *       roles:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/Role'
  *   User:
  *     allOf:
  *       - $ref: '#/definitions/NewUser'
@@ -28,11 +68,48 @@ const Schema = mongoose.Schema;
  *         properties:
  *           _id:
  *             type: string
+ *           createdAt:
+ *              type: dateTime
+ *           updatedAt:
+ *              type: dateTime
  */
 const userSchema = new Schema({
-	username: String,
-	password: String,
-	admin: Boolean
+	username: {
+		type: String,
+		unique: true,
+		required: true
+	},
+	email: {
+		type: String
+	},
+	password: {
+		type: String,
+		required: true,
+		select: false
+	},
+	roles: [role]
 });
+
+
+// Execute before each user.save() call
+userSchema.pre('save', function(callback) {
+	var user = this;
+
+	// Break out if the password hasn't changed
+	if (!user.isModified('password')) return callback();
+
+	// Password changed so we need to hash it
+	bcrypt.genSalt(5, function(err, salt) {
+		if (err) return callback(err);
+
+		bcrypt.hash(user.password, salt, null, function(err, hash) {
+			if (err) return callback(err);
+			user.password = hash;
+			callback();
+		});
+	});
+});
+
+userSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('User',userSchema);

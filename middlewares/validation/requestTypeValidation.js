@@ -1,7 +1,10 @@
 'use strict';
+
+const sendResponse = require('../../utils/sendResponse');
+
 const requestTypeValidation = function(req, res, next) {
 	if(!req.accepts('application/json')) {
-		res.status(406).send({'message':'Not Acceptable request.', status: false});
+		sendResponse(res, {'message':'Not Acceptable request.', status: false}, 406);
 	} else {
 		next();
 	}

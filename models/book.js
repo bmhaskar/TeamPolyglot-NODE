@@ -1,6 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate');
 const Schema = mongoose.Schema;
 
 const commentSchema = new Schema({
@@ -11,7 +12,7 @@ const commentSchema = new Schema({
 
 const bookSchema = new Schema({
     name: {type: String, required: true, trim: true},
-    author: [{type: Schema.Types.ObjectId, ref: 'Author'}],
+    authors: [{type: Schema.Types.ObjectId, ref: 'Author'}],
     comments: [commentSchema]
 }, {timestamps: true});
 
@@ -22,11 +23,12 @@ const bookSchema = new Schema({
  *     type: object
  *     required:
  *       - name
- *       - author
+ *       - authors
  *     properties:
  *       name:
  *         type: string
- *       author:
+ *         example: My new book
+ *       authors:
  *         type: array
  *         items:
  *           $ref: '#/definitions/Author'
@@ -39,5 +41,9 @@ const bookSchema = new Schema({
  *         properties:
  *           _id:
  *             type: string
+ *           createdAt:
+ *              type: dateTime
+ *           updatedAt:
+ *              type: dateTime
  */
 module.exports = mongoose.model('Book', bookSchema);
