@@ -19,8 +19,10 @@ const authorSchema = new Schema({
  *     properties:
  *       name:
  *         type: string
+ *         example: New Author
  *       email:
  *         type: sting
+ *         example: newauthor@mailinator.com
  *   Author:
  *     allOf:
  *       - $ref: '#/definitions/NewAuthor'
@@ -30,6 +32,10 @@ const authorSchema = new Schema({
  *         properties:
  *           _id:
  *             type: string
+ *           createdAt:
+ *              type: dateTime
+ *           updatedAt:
+ *              type: dateTime
  */
 
 module.exports = mongoose.model('Author', authorSchema);
