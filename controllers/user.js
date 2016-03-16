@@ -207,7 +207,7 @@ exports.getUsers = function (req, res) {
  *          type: string
  *      tags:
  *        - User
- *      summary: Retrieves user details
+ *      summary: Retrieves user details by user id
  *      responses:
  *       200:
  *         description: 'User object'
@@ -263,7 +263,7 @@ exports.getUser = function (req, res) {
  *          type: string
  *      tags:
  *        - User
- *      summary: Retrieves user details
+ *      summary: Retrieves user details by username
  *      responses:
  *       200:
  *         description: 'User object'
