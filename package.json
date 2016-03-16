@@ -4,7 +4,7 @@
   "description": "This is a book sharing application. It functions as a distributed library management, also maintains the personal catelog. ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha tests --recursive"
   },
   "keywords": [
     "Book",
@@ -24,5 +24,9 @@
     "passport-local": "^1.0.0",
     "swagger-jsdoc": "^1.2.0",
     "winston": "^2.2.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "supertest": "^1.2.0"
   }
 }
