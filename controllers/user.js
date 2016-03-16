@@ -2,7 +2,7 @@
 
 const User = require('../models/user');
 const sendResponse = require('../utils/sendResponse');
-const debugLogger = require('../logger/logger').debugLogger;
+
 /**
  * @swagger
  * /user:
@@ -110,6 +110,11 @@ exports.post = function (req, res) {
  *                       type: integer
  *                    pages:
  *                       type: integer
+ *       404:
+ *         description: 'Requested user not found'
+ *         schema:
+ *          allOf:
+ *           - $ref: '#/definitions/Response'
  *       405:
  *          description: Invalid input
  *          schema:
@@ -134,9 +139,17 @@ exports.post = function (req, res) {
  *
  */
 exports.getUsers = function (req, res) {
-    let page = req.query.page || 1, limit = req.query.page || 10;
+    let page = req.query.page || 1;
+    let limit = req.query.limit || 10;
 
-    User.paginate({}, {select: '-password', page: page, limit: limit}).then(function (result) {
+    if(isNaN(page) || isNaN(limit)) {
+        sendResponse(res, {message: 'Invalid input.' , status: false}, 405);
+    }
+
+    User.paginate({}, {select: '-password', page: page, limit: Number(limit)}).then(function (result) {
+        if(!result.docs.length) {
+            sendResponse(res, {messgae: 'Could not find users', status: false}, 404);
+        }
         sendResponse(res, {data: result, status: true}, 200);
     }).catch(function (error) {
         sendResponse(res, {messgae: 'Could not fetch users', status: false, error: error}, 500);
@@ -173,6 +186,16 @@ exports.getUsers = function (req, res) {
  *         schema:
  *          allOf:
  *           - $ref: '#/definitions/Response'
+ *       405:
+ *          description: Invalid input
+ *          schema:
+ *            allOf:
+ *            - $ref: '#/definitions/Response'
+ *       406:
+ *         description: Not acceptable request.
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
  *       500:
  *         description: Internal server error
  *         schema:
@@ -183,11 +206,6 @@ exports.getUsers = function (req, res) {
  *               error:
  *                 type: string
  *
- *       406:
- *         description: Not acceptable request.
- *         schema:
- *           allOf:
- *           - $ref: '#/definitions/Response'
  */
 exports.getUser = function(req, res) {
     const userId  = req.params.id;
@@ -203,8 +221,6 @@ exports.getUser = function(req, res) {
         if(!doc) {
             sendResponse(res, {messgae: 'Could not find user with id: '+ userId, status: false}, 404);
         }
-
         sendResponse(res, {'message': 'Found User', status: true, data: doc}, 200);
     });
-
-}
+};
