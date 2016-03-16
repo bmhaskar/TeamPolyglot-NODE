@@ -17,8 +17,8 @@ const mongoosePaginate = require('mongoose-paginate');
  *         type: string
  */
 const role = new Schema({
-	name: {type: String, trim: true},
-	_id: false
+    name: {type: String, trim: true},
+    _id: false
 }, {timestamp: true});
 
 /**
@@ -74,42 +74,45 @@ const role = new Schema({
  *              type: dateTime
  */
 const userSchema = new Schema({
-	username: {
-		type: String,
-		unique: true,
-		required: true
-	},
-	email: {
-		type: String
-	},
-	password: {
-		type: String,
-		required: true,
-		select: false
-	},
-	roles: [role]
+    username: {
+        type: String,
+        unique: true,
+        required: true
+    },
+    email: {
+        type: String,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true,
+        select: false
+    },
+    roles: [role]
+}, {
+    timestamps: true
 });
 
 
 // Execute before each user.save() call
-userSchema.pre('save', function(callback) {
-	var user = this;
+userSchema.pre('save', function (callback) {
+    var user = this;
 
-	// Break out if the password hasn't changed
-	if (!user.isModified('password')) return callback();
+    // Break out if the password hasn't changed
+    if (!user.isModified('password')) return callback();
 
-	// Password changed so we need to hash it
-	bcrypt.genSalt(5, function(err, salt) {
-		if (err) return callback(err);
+    // Password changed so we need to hash it
+    bcrypt.genSalt(5, function (err, salt) {
+        if (err) return callback(err);
 
-		bcrypt.hash(user.password, salt, null, function(err, hash) {
-			if (err) return callback(err);
-			user.password = hash;
-			callback();
-		});
-	});
+        bcrypt.hash(user.password, salt, null, function (err, hash) {
+            if (err) return callback(err);
+            user.password = hash;
+            callback();
+        });
+    });
 });
 
 userSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.model('User',userSchema);
+module.exports = mongoose.model('User', userSchema);
