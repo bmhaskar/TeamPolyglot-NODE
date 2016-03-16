@@ -20,12 +20,17 @@
 			path.resolve(__dirname,'..', 'models', 'author.js'),
 			path.resolve(__dirname,'..', 'models', 'user.js'),
 			path.resolve(__dirname,'..', 'models', 'book.js'),
-			path.resolve(__dirname,'..', 'controllers', 'book.js')
+			path.resolve(__dirname,'..', 'controllers', 'book.js'),
+			path.resolve(__dirname,'..', 'controllers', 'user.js')
  		],
 		tags: [
 			{
 				name: 'Book',
 				description: 'CRUD Operations for Book'
+			},
+			{
+				name: 'User',
+				description: 'CRUD Operations for User'
 			}
 		]
  	},
