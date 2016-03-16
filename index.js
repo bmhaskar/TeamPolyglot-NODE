@@ -10,7 +10,9 @@ const User = require('./models/user');
 mongoose.connect(config.database.mongoose);
 
 const app = express();
+
 app.use(middleware);
+
 const server = app.listen(config.port, config.host, function () {
     console.log('Book sharing application started at address: ' + server.address().address + ' port: ' + server.address().port);
 });
@@ -38,3 +40,5 @@ const onError = function onError(error) {
     }
 }
 server.on('error', onError);
+
+module.exports = server;

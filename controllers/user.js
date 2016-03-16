@@ -185,13 +185,15 @@ exports.getUsers = function (req, res) {
         sendResponse(res, {message: 'Invalid input.', status: false}, 400);
     }
 
-    User.paginate({}, {select: '-password', page: page, limit: Number(limit)}).then(function (result) {
-        if (!result.docs.length) {
+    User.paginate({}, {select: '-password', page: page, limit: Number(limit)}, function(error, result){
+        if(error)
+        {
+          sendResponse(res, {messgae: 'Could not fetch users', status: false, error: error}, 500);
+        }
+        if(!result.docs.length) {
             sendResponse(res, {messgae: 'Could not find users', status: false}, 404);
         }
         sendResponse(res, {data: result, status: true}, 200);
-    }).catch(function (error) {
-        sendResponse(res, {messgae: 'Could not fetch users', status: false, error: error}, 500);
     });
 };
 /**
