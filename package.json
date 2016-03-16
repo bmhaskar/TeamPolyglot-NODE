@@ -4,7 +4,7 @@
   "description": "This is a book sharing application. It functions as a distributed library management, also maintains the personal catelog. ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha tests --recursive"
   },
   "keywords": [
     "Book",
