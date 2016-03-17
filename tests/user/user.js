@@ -4,9 +4,8 @@ process.env.NODE_ENV = 'test';
 
 const request = require('supertest');
 const assert = require('assert');
-const mongoose = require("mongoose");
 
-const config = require('../../config/config');
+const testUtils = require('../../utils/testUtils');
 let app = {};
 
 describe('User api', function () {
@@ -83,24 +82,16 @@ describe('User api', function () {
         assert.equal(actual.email, expected.email);
         assert(!actual.hasOwnProperty('password'));
     };
-    const cleanDatabases = function (cb) {
-        mongoose.connect(config.database.mongoose, function (err) {
-            mongoose.connection.db.dropDatabase(function () {
-                mongoose.connection.close(function () {
-                    cb();
-                })
-            });
-        });
-    };
+
 
     before(function (done) {
-        cleanDatabases(function () {
+        testUtils.cleanDatabases(function () {
             app = require('../../index');
             done();
         })
     });
     after(function (done) {
-        cleanDatabases(function () {
+        testUtils.cleanDatabases(function () {
             done();
         });
     });

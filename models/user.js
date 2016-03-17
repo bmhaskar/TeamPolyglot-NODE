@@ -17,8 +17,7 @@ const mongoosePaginate = require('mongoose-paginate');
  *         type: string
  */
 const role = new Schema({
-    name: {type: String, trim: true},
-    _id: false
+    name: {type: String, trim: true}
 }, {timestamp: true});
 
 /**
