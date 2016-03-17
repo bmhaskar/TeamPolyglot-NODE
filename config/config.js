@@ -10,4 +10,6 @@ let config = {};
 
 Object.assign(config, baseConfig, overridingConfig);
 
+config.env = env;
+
 module.exports = config;

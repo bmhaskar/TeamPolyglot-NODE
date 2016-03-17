@@ -9,29 +9,48 @@ const maskPassword = function (user) {
             username: user.username,
             email: user.email,
             roles: user.roles,
+            _id: user._id,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt
         }
     );
 };
 
-const updateUser = function (req, res) {
-    var existingUser = req.bookSharing.user;
+const updateUserService = function (newUser, existingUser) {
     Object.assign(existingUser,
         {
-            username: req.body.username || existingUser.username,
-            email: req.body.email || existingUser.email,
-            roles: req.body.roles || existingUser.roles
+            username: newUser.username || existingUser.username,
+            email: newUser.email || existingUser.email,
+            roles: newUser.roles || existingUser.roles
         }
     );
+    return existingUser.save();
+};
 
-    existingUser.save(function (err, user) {
-        if (err)
-            sendResponse(res, {'message': 'Could not update user.', status: false, error: err}, 500);
-
-        sendResponse(res, {'message': 'Updated User', status: true, data: maskPassword(user)}, 200);
-
+const createUserService = function (newUser) {
+    var user = new User({
+        username: newUser.username,
+        password: newUser.password,
+        email: newUser.email
     });
+
+    if (newUser.roles) {
+        user.roles = newUser.roles;
+    }
+
+    return user.save();
+}
+
+const findUsersService = function(limit, page)  {
+    return  User.paginate({}, {select: '-password', page: page, limit: Number(limit)});
+};
+
+const updateUser = function (newUser, existingUser, res) {
+    updateUserService(newUser, existingUser).then(function (user) {
+        sendResponse(res, {'message': 'Updated User', status: true, data: maskPassword(user)}, 200);
+    }, function (err) {
+        sendResponse(res, {'message': 'Could not update user.', status: false, error: err}, 500);
+    }).end();
 };
 
 const deleteUser = function (req, res) {
@@ -76,23 +95,12 @@ const deleteUser = function (req, res) {
  *
  */
 exports.post = function (req, res) {
-    var user = new User({
-        username: req.body.username,
-        password: req.body.password,
-        email: req.body.email
-    });
-
-    if (req.body.roles) {
-        user.roles = req.body.roles;
-    }
-
-    user.save(function (err) {
-        if (err)
-            sendResponse(res, {'message': 'Could not save user.', status: false, error: err}, 500);
-
-        sendResponse(res, {'message': 'User created', status: true, data: maskPassword(user)}, 201);
-    });
-}
+    createUserService(req.body).then(function (user) {
+        sendResponse(res, {'message': 'User created', status: true, data: maskPassword(user)}, 200);
+    }, function (err) {
+        sendResponse(res, {'message': 'Could not save user.', status: false, error: err}, 500);
+    }).end();
+};
 /**
  * @swagger
  * definition:
@@ -185,20 +193,19 @@ exports.getUsers = function (req, res) {
         sendResponse(res, {message: 'Invalid input.', status: false}, 400);
     }
 
-    User.paginate({}, {select: '-password', page: page, limit: Number(limit)}, function(error, result){
-        if(error)
-        {
-          sendResponse(res, {messgae: 'Could not fetch users', status: false, error: error}, 500);
-        }
-        if(!result.docs.length) {
+    findUsersService(limit, page).then(function (result) {
+        if (!result.docs.length) {
             sendResponse(res, {messgae: 'Could not find users', status: false}, 404);
+        } else {
+            sendResponse(res, {message: 'Found users', data: result, status: true}, 200);
         }
-        sendResponse(res, {data: result, status: true}, 200);
+    },function (error) {
+        sendResponse(res, {messgae: 'Could not fetch users', status: false, error: error}, 500);
     });
 };
 /**
  * @swagger
- * /user/{id}:
+ * /user/id/{id}:
  *    get:
  *      operationId: getUser
  *      parameters:
@@ -254,7 +261,7 @@ exports.getUser = function (req, res) {
 
 /**
  * @swagger
- * /user/{username}:
+ * /user/username/{username}:
  *    get:
  *      operationId: getUserByName
  *      parameters:
@@ -310,7 +317,7 @@ exports.getUserByName = function (req, res) {
 
 /**
  * @swagger
- * /user/{username}:
+ * /user/username/{username}:
  *    put:
  *      operationId: putForName
  *      parameters:
@@ -378,13 +385,13 @@ exports.getUserByName = function (req, res) {
  *
  */
 exports.putForName = function (req, res) {
-    updateUser(req, res);
+    updateUser(req.body, req.bookSharing.user, res);
 };
 
 
 /**
  * @swagger
- * /user/{username}:
+ * /user/username/{username}:
  *    delete:
  *      operationId: deleteByName
  *      parameters:
@@ -440,7 +447,7 @@ exports.deleteByName = function (req, res) {
 
 /**
  * @swagger
- * /user/{id}:
+ * /user/id/{id}:
  *    put:
  *      operationId: putForId
  *      parameters:
@@ -508,12 +515,12 @@ exports.deleteByName = function (req, res) {
  *
  */
 exports.putForId = function (req, res) {
-    updateUser(req, res);
+    updateUser(req.body, req.bookSharing.user, res);
 };
 
 /**
  * @swagger
- * /user/{id}:
+ * /user/id/{id}:
  *    delete:
  *      operationId: deleteById
  *      parameters:

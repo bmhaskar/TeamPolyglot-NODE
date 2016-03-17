@@ -4,19 +4,76 @@
 const debugLogger = require('../logger/logger').debugLogger;
 const Book = require('../models/book');
 /**
- *  @swagger
- *  /books:
+ * @swagger
+ * /books:
  *    get:
+ *      operationId: getBooks
+ *      parameters:
+ *       -  name: limit
+ *          in: query
+ *          required: false
+ *          description: 'Number of users to be retrieved'
+ *          type: integer
+ *       -  name: page
+ *          in: query
+ *          required: false
+ *          description: 'Page number from where we want to start fetching books.'
+ *          type: integer
  *      tags:
  *        - Book
- *      summary: List all books
+ *      summary: Retrieves list of books
  *      responses:
- *        200:
- *          description: 'A list of books'
+ *       200:
+ *         description: 'Added user.'
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               status:
+ *                 default: true
+ *               data:
+ *                  type: object
+ *                  properties:
+ *                    docs:
+ *                      type: array
+ *                      items:
+ *                        $ref: '#/definitions/Book'
+ *                    total:
+ *                       type: integer
+ *                    limit:
+ *                       type: integer
+ *                    page:
+ *                       type: integer
+ *                    pages:
+ *                       type: integer
+ *       404:
+ *         description: 'Requested books not found'
+ *         schema:
+ *          allOf:
+ *           - $ref: '#/definitions/Response'
+ *       400:
+ *          description: Invalid input
  *          schema:
- *            type: array
- *            items:
- *              $ref: '#/definitions/'
+ *            allOf:
+ *            - $ref: '#/definitions/Response'
+ *       500:
+ *         description: Internal server error
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               error:
+ *                 type: string
+ *
+ *       406:
+ *         description: Not acceptable request.
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *
+ *
  */
 exports.getBooks = function (req, res) {
     //debugLogger.debug('Test debugLogger');

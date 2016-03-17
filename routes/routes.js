@@ -15,12 +15,12 @@ routes.route('/book').post(bookController.post);
 
 routes.route('/users').get(userController.getUsers);
 routes.route('/user').post(userController.post);
-routes.route('/user/:id([a-zA-Z0-9]{24})')
+routes.route('/user/id/:id([a-zA-Z0-9]{24})')
     .all(findUserById)
     .get(userController.getUser)
     .put(userController.putForId)
     .delete(userController.deleteById);
-routes.route('/user/:username')
+routes.route('/user/username/:username')
     .all(findUserByName)
     .get(userController.getUserByName)
     .put(userController.putForName)
