@@ -1,6 +1,6 @@
 'use strict';
 
-const User = require('../models/user');
+const userRepo = require('../repositories/user');
 const sendResponse = require('../utils/sendResponse');
 
 const maskPassword = function (user) {
@@ -16,37 +16,8 @@ const maskPassword = function (user) {
     );
 };
 
-const updateUserService = function (newUser, existingUser) {
-    Object.assign(existingUser,
-        {
-            username: newUser.username || existingUser.username,
-            email: newUser.email || existingUser.email,
-            roles: newUser.roles || existingUser.roles
-        }
-    );
-    return existingUser.save();
-};
-
-const createUserService = function (newUser) {
-    var user = new User({
-        username: newUser.username,
-        password: newUser.password,
-        email: newUser.email
-    });
-
-    if (newUser.roles) {
-        user.roles = newUser.roles;
-    }
-
-    return user.save();
-}
-
-const findUsersService = function(limit, page)  {
-    return  User.paginate({}, {select: '-password', page: page, limit: Number(limit)});
-};
-
 const updateUser = function (newUser, existingUser, res) {
-    updateUserService(newUser, existingUser).then(function (user) {
+    userRepo.updateUser(newUser, existingUser).then(function (user) {
         sendResponse(res, {'message': 'Updated User', status: true, data: maskPassword(user)}, 200);
     }, function (err) {
         sendResponse(res, {'message': 'Could not update user.', status: false, error: err}, 500);
@@ -55,11 +26,10 @@ const updateUser = function (newUser, existingUser, res) {
 
 const deleteUser = function (req, res) {
     var existingUser = req.bookSharing.user;
-    existingUser.remove(function (err, user) {
-        if (err) {
-            sendResponse(res, {'message': 'Could not delete user.', status: false, error: err}, 500);
-        }
+    userRepo.deleteUser(existingUser._id).then(function (user) {
         sendResponse(res, {'message': 'Deleted User', status: true, data: maskPassword(user)}, 200);
+    }, function (err) {
+        sendResponse(res, {'message': 'Could not delete user.', status: false, error: err}, 500);
     });
 };
 /**
@@ -95,7 +65,7 @@ const deleteUser = function (req, res) {
  *
  */
 exports.post = function (req, res) {
-    createUserService(req.body).then(function (user) {
+    userRepo.createUser(req.body).then(function (user) {
         sendResponse(res, {'message': 'User created', status: true, data: maskPassword(user)}, 200);
     }, function (err) {
         sendResponse(res, {'message': 'Could not save user.', status: false, error: err}, 500);
@@ -193,13 +163,13 @@ exports.getUsers = function (req, res) {
         sendResponse(res, {message: 'Invalid input.', status: false}, 400);
     }
 
-    findUsersService(limit, page).then(function (result) {
+    userRepo.findUsers(limit, page).then(function (result) {
         if (!result.docs.length) {
             sendResponse(res, {messgae: 'Could not find users', status: false}, 404);
         } else {
             sendResponse(res, {message: 'Found users', data: result, status: true}, 200);
         }
-    },function (error) {
+    }, function (error) {
         sendResponse(res, {messgae: 'Could not fetch users', status: false, error: error}, 500);
     });
 };

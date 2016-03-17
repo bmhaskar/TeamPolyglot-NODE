@@ -44,6 +44,30 @@ describe('User api', function () {
             .end(cb);
     }
 
+    const updateUserById = function(cb, user, status) {
+        status = status || 200;
+        request(app)
+            .put('/api/user/id/' + user._id)
+            .send(user)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(status)
+            .end(cb);
+    }
+
+    const updateUserByName = function(cb, user, status) {
+        status = status || 200;
+        request(app)
+            .put('/api/user/username/' + user.username)
+            .send(user)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(status)
+            .end(cb);
+    }
+
     const assrtBasicMessage = function (body) {
         assert(body.hasOwnProperty('message'), 'Asserting response object has message property');
         assert(body.hasOwnProperty('status'), 'Asserting response object has status property');
@@ -143,6 +167,26 @@ describe('User api', function () {
             })
     });
 
+    it('updates an user by id', function (done) {
+        user.username = 'testman';
+        updateUserById(function (err, result) {
+                if (err) throw err;
+                assertBasicSucessMessage(result.body);
+                assertProperUser(result.body.data, user);
+                done();
+        },user,200);
+    });
+
+    it('updates an user by name', function (done) {
+        user.email = 'testman@mailinator.com';
+        updateUserByName(function (err, result) {
+                if (err) throw err;
+                assertBasicSucessMessage(result.body);
+                assertProperUser(result.body.data, user);
+                done();
+        },user,200);
+    });
+
     it('deletes an user by id', function (done) {
         request(app)
             .delete('/api/user/id/' + user._id)
@@ -183,4 +227,28 @@ describe('User api', function () {
                 done();
             },user, 200)
     });
+
+    it('deletes an user by username', function (done) {
+        request(app)
+            .delete('/api/user/username/' + user.username)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(function (err, result) {
+                if (err) throw err;
+
+                assertBasicSucessMessage(result.body);
+                assertProperUser(result.body.data, user);
+
+                findUserById(function(err, result){
+                    assert(!err, 'Asserting that there are no errors');
+                    assert.equal(result.body.status, false, 'Asserting deleted user is not found');
+                    done();
+                }, user, 404);
+            })
+    });
+
+
+
 });

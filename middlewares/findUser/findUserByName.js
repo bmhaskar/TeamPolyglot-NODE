@@ -1,15 +1,15 @@
 'use strict';
 
-const User = require('../../models/user');
-const sendResponse = require('../../utils/sendResponse');
 
-const findByNameService = function (username) {
-    return User.findOne({username: username}).exec();
-}
+const sendResponse = require('../../utils/sendResponse');
+const userRepo = require('../../repositories/user');
+
 
 module.exports = function (req, res, next) {
+
     const username = req.params.username;
-    findByNameService(username).then(function (doc) {
+
+    userRepo.findByName(username).then(function (doc) {
         if (!doc) {
             sendResponse(res, {messgae: 'Could not find user with name: ' + username, status: false}, 404);
         } else {
