@@ -53,7 +53,7 @@ describe('User api', function () {
             .expect('Content-Type', /json/)
             .expect(status)
             .end(cb);
-    }
+    };
 
     const updateUserByName = function(cb, user, status) {
         status = status || 200;
@@ -65,17 +65,8 @@ describe('User api', function () {
             .expect('Content-Type', /json/)
             .expect(status)
             .end(cb);
-    }
+    };
 
-    const assrtBasicMessage = function (body) {
-        assert(body.hasOwnProperty('message'), 'Asserting response object has message property');
-        assert(body.hasOwnProperty('status'), 'Asserting response object has status property');
-        assert(body.hasOwnProperty('data'), 'Asserting response object has data property');
-    };
-    const assertBasicSucessMessage = function (body) {
-        assrtBasicMessage(body)
-        assert.equal(body.status, true, 'Asserting user save operation status is true');
-    };
     const assertProperUser = function (actual, expected) {
         assert(actual.hasOwnProperty('_id'), 'Asserting response object has user id');
         assert.equal(actual.username, expected.username);
@@ -106,7 +97,7 @@ describe('User api', function () {
 
     it('creates user', function (done) {
         createUser(function (err, result) {
-            assertBasicSucessMessage(result.body);
+            testUtils.assrtBasicMessage(result.body);
             assertProperUser(result.body.data, user);
             user = result.body.data;
             done();
@@ -122,7 +113,7 @@ describe('User api', function () {
             .expect(200)
             .end(function (err, result) {
 
-                assertBasicSucessMessage(result.body);
+                testUtils.assrtBasicMessage(result.body);
                 assertProperUser(result.body.data, user);
                 done();
             })
@@ -130,7 +121,7 @@ describe('User api', function () {
 
     it('finds created user by id', function (done) {
         findUserById(function (err, result) {
-            assertBasicSucessMessage(result.body);
+            testUtils.assrtBasicMessage(result.body);
             assertProperUser(result.body.data, user);
             done();
         }, user, 200)
@@ -146,7 +137,7 @@ describe('User api', function () {
             .end(function (err, result) {
                 if (err) throw err;
 
-                assertBasicSucessMessage(result.body);
+                testUtils.assrtBasicMessage(result.body);
 
                 assert(result.body.data.hasOwnProperty('docs'), 'Asserting response has docs');
                 assert(Array.isArray(result.body.data.docs), 'Asserting response has docs as array');
@@ -162,7 +153,7 @@ describe('User api', function () {
         user.username = 'testman';
         updateUserById(function (err, result) {
                 if (err) throw err;
-                assertBasicSucessMessage(result.body);
+                testUtils.assrtBasicMessage(result.body);
                 assertProperUser(result.body.data, user);
                 done();
         },user,200);
@@ -172,7 +163,7 @@ describe('User api', function () {
         user.email = 'testman@mailinator.com';
         updateUserByName(function (err, result) {
                 if (err) throw err;
-                assertBasicSucessMessage(result.body);
+                testUtils.assrtBasicMessage(result.body);
                 assertProperUser(result.body.data, user);
                 done();
         },user,200);
@@ -188,7 +179,7 @@ describe('User api', function () {
             .end(function (err, result) {
                 if (err) throw err;
 
-                assertBasicSucessMessage(result.body);
+                testUtils.assrtBasicMessage(result.body);
                 assertProperUser(result.body.data, user);
 
                 findUserById(function(err, result){
@@ -204,7 +195,7 @@ describe('User api', function () {
         createUser(function (err, result) {
                 if (err) throw err;
 
-                assertBasicSucessMessage(result.body);
+                testUtils.assrtBasicMessage(result.body);
                 assertProperUser(result.body.data, user);
                 createUser(function (err, result) {
                     /**
@@ -229,7 +220,7 @@ describe('User api', function () {
             .end(function (err, result) {
                 if (err) throw err;
 
-                assertBasicSucessMessage(result.body);
+                testUtils.assrtBasicMessage(result.body);
                 assertProperUser(result.body.data, user);
 
                 findUserById(function(err, result){

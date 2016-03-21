@@ -73,18 +73,6 @@ exports.post = function (req, res) {
 };
 /**
  * @swagger
- * definition:
- *   Response:
- *     type: object
- *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       message:
- *         type: string
- */
-/**
- * @swagger
  * /users:
  *    get:
  *      operationId: getUsers
@@ -104,7 +92,7 @@ exports.post = function (req, res) {
  *      summary: Retrieves list of users
  *      responses:
  *       200:
- *         description: 'Added user.'
+ *         description: 'List of users'
  *         schema:
  *           allOf:
  *           - $ref: '#/definitions/Response'
@@ -154,6 +142,18 @@ exports.post = function (req, res) {
  *           - $ref: '#/definitions/Response'
  *
  *
+ */
+/**
+ * @swagger
+ * definition:
+ *   Response:
+ *     type: object
+ *     properties:
+ *       status:
+ *         type: boolean
+ *         default: false
+ *       message:
+ *         type: string
  */
 exports.getUsers = function (req, res) {
     let page = req.query.page || 1;

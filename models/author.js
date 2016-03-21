@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const authorSchema = new Schema({
     name: {type: String, trim: true},
     email: {type: String}
-}, {timestamp: true});
+}, {timestamp: true}).index({email: 1, name: 1}, {unique: true});
 
 /**
  * @swagger
@@ -15,7 +15,6 @@ const authorSchema = new Schema({
  *     type: object
  *     required:
  *       - name
- *       - email
  *     properties:
  *       name:
  *         type: string
@@ -33,9 +32,11 @@ const authorSchema = new Schema({
  *           _id:
  *             type: string
  *           createdAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  *           updatedAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  */
 
 module.exports = mongoose.model('Author', authorSchema);
