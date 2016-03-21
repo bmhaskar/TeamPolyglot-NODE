@@ -1,8 +1,10 @@
+'use strict';
+
 const winston = require('winston');
 const expressWinston = require('express-winston');
 const path = require('path');
 
-const config = require('../config/config');
+const config = require('../../config/config');
 
 const consoleTransport = new winston.transports.Console({
       	json: true,
@@ -43,21 +45,39 @@ const dubugLogFileTransport = new winston.transports.File({
   			filename: path.join(config.logDir , "debug_log")
 	});
 
-const genericLogger = new (winston.Logger)({
-	    transports: [
-				consoleTransport,
-				accessLogFileTransport        
+//@todo: Find a better approach to separate logger's based on env
+let genericLogger = {}, errorLogger = {};
+if(config.env != 'test') {
+	genericLogger = new (winston.Logger)({
+		transports: [
+			consoleTransport,
+			accessLogFileTransport
 		],
 		exitOnError: false
 	});
 
-const errorLogger =  new (winston.Logger)({
+	errorLogger = new (winston.Logger)({
 		transports: [
-				consoleTransport,
-				errorFileTransport
-			],
-		exitOnError: false 
+			consoleTransport,
+			errorFileTransport
+		],
+		exitOnError: false
 	});
+} else {
+	genericLogger = new (winston.Logger)({
+		transports: [
+			accessLogFileTransport
+		],
+		exitOnError: false
+	});
+
+	errorLogger = new (winston.Logger)({
+		transports: [
+			errorFileTransport
+		],
+		exitOnError: false
+	});
+}
   
 exports.genericLogger = expressWinston.logger({
 		winstonInstance: genericLogger,      

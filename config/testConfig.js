@@ -2,6 +2,7 @@
 const path = require('path');
 
 const config = {
+    port: 3333,
     database: {
         mongoose: 'mongodb://localhost/test/booksharing'
     },

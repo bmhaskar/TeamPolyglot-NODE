@@ -1,7 +1,7 @@
 'use strict';
 
 const swaggerJsDoc = require('swagger-jsdoc');
-const config = require('../config/config');
+const config = require('../../config/config');
 
 const options = {
 	swaggerDefinition: {
