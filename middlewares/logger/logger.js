@@ -4,7 +4,7 @@ const winston = require('winston');
 const expressWinston = require('express-winston');
 const path = require('path');
 
-const config = require('../config/config');
+const config = require('../../config/config');
 
 const consoleTransport = new winston.transports.Console({
       	json: true,

@@ -1,6 +1,6 @@
 'use strict';
 
-const debugLogger = require('../logger/logger').debugLogger;
+const debugLogger = require('../middlewares/logger/logger').debugLogger;
 const bookRepo = require('../repositories/book');
 const sendResponse = require('../utils/sendResponse');
 
@@ -157,3 +157,5 @@ exports.post = function(req, res) {
         sendResponse(res, {'message': 'Could not save user.', status: false, error: err}, 500);
     }).end();
 }
+
+

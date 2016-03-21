@@ -4,14 +4,14 @@ const express = require('express');
 const routes = express.Router();
 const url = require('url')
 
-const reqTypeValidaton = require('../middlewares/validation/requestTypeValidation');
-const jsDoc = require('./jsDoc');
-const config = require('../config/config');
-const allowCors = require('../middlewares/allowCors/allowCors');
+const config = require('../../config/config');
+const reqTypeValidaton = require('../validation/requestTypeValidation');
+const allowCors = require('../allowCors/allowCors');
+const swaggerJsDocConfigObject = require('./swaggerJsDocConfigObject');
 
 routes.get('/api/doc-specs.json', reqTypeValidaton, allowCors, function (req, res) {
     res.type('json');
-    res.send(jsDoc);
+    res.send(swaggerJsDocConfigObject);
 });
 
 routes.get('/api/docs', function (req, res) {
