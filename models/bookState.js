@@ -38,12 +38,14 @@ const Schema = mongoose.Schema;
  *      - $ref: '#/definitions/NewBookState'
  *      - type: object
  *        required:
- *          _id:
+ *           _id:
  *             type: string
- *          createdAt:
- *             type: dateTime
- *          updatedAt:
- *             type: dateTime
+ *           createdAt:
+ *              type: string
+ *              format: date-time
+ *           updatedAt:
+ *              type: string
+ *              format: date-time
  */
 const bookStateSchema = new Schema({
     book: {type: Schema.Types.ObjectId, ref: 'Book'},

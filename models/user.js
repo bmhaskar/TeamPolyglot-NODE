@@ -66,11 +66,13 @@ const role = new Schema({
  *         - _id
  *         properties:
  *           _id:
- *             type: string
+ *              type: string
  *           createdAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  *           updatedAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  */
 const userSchema = new Schema({
     username: {

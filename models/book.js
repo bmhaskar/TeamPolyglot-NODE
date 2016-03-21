@@ -21,12 +21,13 @@ const Schema = mongoose.Schema;
  *           _id:
  *             type: string
  *           createdAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  *           updatedAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  *           createdBy:
  *              $ref: '#/definitions/ResponseUser'
-
  */
 const commentSchema = new Schema({
     body: {type: String, trim: true},
@@ -44,6 +45,10 @@ const commentSchema = new Schema({
  *       name:
  *         type: string
  *         example: Dummy publisher
+ *       url:
+ *         type: array
+ *         items:
+ *           type: string
  *       address:
  *         type: object
  *         properties:
@@ -58,7 +63,7 @@ const commentSchema = new Schema({
  *           state:
  *             type: string
  *           zip:
- *             type: integer
+ *             type: string
  *   Publisher:
  *     allOf:
  *       - $ref: '#/definitions/NewPublisher'
@@ -69,9 +74,11 @@ const commentSchema = new Schema({
  *           _id:
  *             type: string
  *           createdAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  *           updatedAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  *
  */
 const publisherSchema = new Schema({
@@ -82,8 +89,9 @@ const publisherSchema = new Schema({
         country: String,
         city: String,
         state: String,
-        zip: Number
-    }
+        zip: String
+    },
+    urls: [{type: String}]
 }, {timestamp: true});
 
 /**
@@ -94,6 +102,8 @@ const publisherSchema = new Schema({
  *     required:
  *       - name
  *       - authors
+ *       - publisher
+ *       - publishedOn
  *     properties:
  *       name:
  *         type: string
@@ -101,7 +111,7 @@ const publisherSchema = new Schema({
  *       authors:
  *         type: array
  *         items:
- *           $ref: '#/definitions/Author'
+ *           $ref: '#/definitions/NewAuthor'
  *       comments:
  *         type: array
  *         items:
@@ -109,7 +119,8 @@ const publisherSchema = new Schema({
  *       publisher:
  *         $ref: '#/definitions/NewPublisher'
  *       publishedOn:
- *         type: dateTime
+ *         type: string
+ *         format: date-time
  *       isbn13:
  *         type: string
  *       isbn10:
@@ -124,13 +135,28 @@ const publisherSchema = new Schema({
  *           _id:
  *             type: string
  *           createdAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  *           updatedAt:
- *              type: dateTime
+ *              type: string
+ *              format: date-time
  *           comments:
  *              type: array
  *              items:
  *                $ref: '#/definitions/Comment'
+ *           authors:
+ *              type: array
+ *              items:
+ *                $ref: '#/definitions/Author'
+ *   DeletedBook:
+ *     allOf:
+ *       - $ref: '#/definitions/Book'
+ *       - type: object
+ *         properties:
+ *           authors:
+ *             type: array
+ *             items:
+ *               type: string
  */
 
 const bookSchema = new Schema({

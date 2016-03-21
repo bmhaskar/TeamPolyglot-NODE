@@ -3,7 +3,7 @@
 
 const bookRepo = require('../repositories/book');
 const sendResponse = require('../utils/sendResponse');
-
+const authorRepo = require('../repositories/author');
 /**
  * @swagger
  * /books:
@@ -96,6 +96,71 @@ exports.getBooks = function (req, res) {
 
 /**
  * @swagger
+ * /book/{bookId}:
+ *   get:
+ *     operationId: getBookById
+ *     summary: Retrieves a book
+ *     description: Retrieves book details by id
+ *     tags:
+ *      - Book
+ *     properties:
+ *       - name: bookId
+ *         in: path
+ *         required: true
+ *         description: The id of book to be retrieved
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: 'Book object'
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               status:
+ *                  default: true
+ *               data:
+ *                  $ref: '#/definitions/Book'
+ *       404:
+ *         description: 'Requested book not found'
+ *         schema:
+ *          allOf:
+ *           - $ref: '#/definitions/Response'
+ *       400:
+ *          description: Invalid input
+ *          schema:
+ *            allOf:
+ *            - $ref: '#/definitions/Response'
+ *       406:
+ *         description: Not acceptable request.
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *       500:
+ *         description: Internal server error
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               error:
+ *                 type: string
+ *
+ *
+ *
+ */
+exports.getBookById = function(req, res) {
+    sendResponse(res, {'message': 'Found Book', status: true, data: req.bookSharing.book}, 200);
+}
+
+
+const createAuthors = function (authors) {
+    return authors.map(function (author) {
+        return authorRepo.createAuthor(author);
+    });
+}
+/**
+ * @swagger
  * /book:
  *    post:
  *      operationId: addBook
@@ -143,19 +208,37 @@ exports.getBooks = function (req, res) {
  *               error:
  *                 type: string
  */
-exports.post = function(req, res) {
-    bookRepo.createBook(req.body).then(function (user) {
-        sendResponse(res, {'message': 'User created', status: true, data: maskPassword(user)}, 200);
-    }, function (err) {
-        sendResponse(res, {'message': 'Could not save user.', status: false, error: err}, 500);
-    }).end();
+exports.post = function (req, res) {
+
+    const authors = createAuthors(req.body.authors);
+
+    Promise.all(authors).then(function (authors) {
+            const authorIds = authors.map(function (author) {
+                return author._id;
+            });
+            req.body.authors = authorIds;
+
+            bookRepo.createBook(req.body).then(function (book) {
+                bookRepo.findById(book._id).then(function (populatedBook) {
+                    sendResponse(res, {'message': 'Book created', status: true, data: populatedBook}, 200);
+                });
+            }, function (err) {
+                sendResponse(res, {'message': 'Could not save book.', status: false, error: err}, 500);
+            }).end();
+        },
+        function (err) {
+            sendResponse(res, {'message': 'Could not save author.', status: false, error: err}, 500);
+        }
+    );
+
 }
+
 
 /**
  * @swagger
  * /book/{bookId}:
  *    put:
- *      operationId: putForId
+ *      operationId: put
  *      summary: Updates book details
  *      tags:
  *        - Book
@@ -168,7 +251,7 @@ exports.post = function(req, res) {
  *       -  name: body
  *          in: body
  *          required: true
- *          description: 'User object details which needs to be updated'
+ *          description: 'Book object details which needs to be updated'
  *          schema:
  *            type: object
  *            $ref: '#/definitions/NewBook'
@@ -211,10 +294,135 @@ exports.post = function(req, res) {
  *
  */
 exports.put = function (req, res) {
-
+    bookRepo.updateBook(req.body, req.bookSharing.book ).then(function (updatedBook) {
+        sendResponse(res, {'message': 'Updated Book', status: true, data: updatedBook}, 200);
+    }, function (err) {
+        sendResponse(res, {'message': 'Could not update book', status: false, error: err}, 500);
+    }).end();
 }
 
 
+
+/**
+ * @swagger
+ * /book/{bookId}:
+ *    delete:
+ *      operationId: delete
+ *      summary: Deletes book details
+ *      tags:
+ *        - Book
+ *      parameters:
+ *       -  name: bookId
+ *          in: path
+ *          required: true
+ *          description: 'Id of the book to be modified'
+ *          type: string
+ *      responses:
+ *       200:
+ *         description: 'Deleted book object'
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               status:
+ *                  default: true
+ *               data:
+ *                  $ref: '#/definitions/DeletedBook'
+ *       400:
+ *          description: Invalid input
+ *          schema:
+ *            allOf:
+ *            - $ref: '#/definitions/Response'
+ *       404:
+ *         description: 'Requested book not found'
+ *         schema:
+ *          allOf:
+ *           - $ref: '#/definitions/Response'
+ *       406:
+ *         description: Not acceptable request.
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *       500:
+ *         description: Internal server error
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               error:
+ *                 type: string
+ *
+ */
+exports.delete = function (req, res) {
+    const book = req.bookSharing.book;
+    bookRepo.deleteBook(book._id).then(function (deletedBook) {
+        sendResponse(res, {'message': 'Deleted Book', status: true, data: deletedBook}, 200);
+    }, function (err) {
+        sendResponse(res, {'message': 'Could not delete book.', status: false, error: err}, 500);
+    });
+}
+
+
+
+/**
+ * @swagger
+ * /book/request/{bookId}:
+ *   get:
+ *     operationId: currentStatusOfBook
+ *     description: Returns current status of the book
+ *     summary: Current status of the book
+ *     tags:
+ *      - Book
+ *     parameters:
+ *      - name: bookId
+ *        in: path
+ *        required: true
+ *        description: The id of book which is requested.
+ *        type: string
+ *     responses:
+ *       200:
+ *        description: Requested book's current state
+ *        schema:
+ *          allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *                status:
+ *                  default: true
+ *                data:
+ *                  type: object
+ *                  $ref: '#/definitions/BookState'
+ *       400:
+ *         description: Invalid input
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *       404:
+ *        description: 'Requested books not found'
+ *        schema:
+ *         allOf:
+ *          - $ref: '#/definitions/Response'
+ *       406:
+ *        description: Not acceptable request.
+ *        schema:
+ *          allOf:
+ *          - $ref: '#/definitions/Response'
+ *       500:
+ *        description: Internal server error
+ *        schema:
+ *          allOf:
+ *          - $ref: '#/definitions/Response'
+ *          - type: object
+ *            properties:
+ *              error:
+ *                type: string
+ *
+ */
+exports.currentStatusOfBook = function (req, res) {
+    sendResponse(res, {'message': 'Found Book Status', status: true, data: req.bookSharing.bookStatus}, 200);
+}
 
 /**
  * @swagger
@@ -270,7 +478,7 @@ exports.put = function (req, res) {
  *                type: string
  *
  */
-exports.requestBook = function(req, res) {
+exports.requestBook = function (req, res) {
 
 }
 
@@ -333,7 +541,7 @@ exports.requestBook = function(req, res) {
  *                type: string
  *
  */
-exports.approveBookRequest = function(req, res) {
+exports.approveBookRequest = function (req, res) {
 
 }
 
@@ -396,7 +604,7 @@ exports.approveBookRequest = function(req, res) {
  *                type: string
  *
  */
-exports.rejectBookRequest = function(req, res) {
+exports.rejectBookRequest = function (req, res) {
 }
 
 
@@ -459,7 +667,7 @@ exports.rejectBookRequest = function(req, res) {
  *                type: string
  *
  */
-exports.markBookAsReturned = function(req, res) {
+exports.markBookAsReturned = function (req, res) {
 }
 
 
@@ -523,5 +731,5 @@ exports.markBookAsReturned = function(req, res) {
  *                type: string
  *
  */
-exports.markBookAsLost = function(req, res) {
+exports.markBookAsLost = function (req, res) {
 }
