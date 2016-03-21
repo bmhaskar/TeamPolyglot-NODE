@@ -22,6 +22,7 @@ const config = {
             path.resolve(__dirname,'..', 'models', 'author.js'),
             path.resolve(__dirname,'..', 'models', 'user.js'),
             path.resolve(__dirname,'..', 'models', 'book.js'),
+            path.resolve(__dirname,'..', 'models', 'bookState.js'),
             path.resolve(__dirname,'..', 'controllers', 'book.js'),
             path.resolve(__dirname,'..', 'controllers', 'user.js')
         ],

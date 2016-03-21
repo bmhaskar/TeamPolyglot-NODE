@@ -10,30 +10,36 @@ const Schema = mongoose.Schema;
  *    required:
  *     - book
  *     - uploadedBy
+ *     - currentStatus
  *    properties:
  *      book:
- *        $ref: '#/definition/Book'
+ *        type: object
+ *        $ref: '#/definitions/Book'
+ *      currentStatus:
+ *        type: string
  *      uploadedBy:
- *        $ref: '#/deffinition/ResponseUser'
- *      uploadedBy:
- *        $ref: '#/deffinition/ResponseUser'
+ *        type: object
+ *        $ref: '#/definitions/ResponseUser'
  *      lentBy:
- *        $ref: '#/deffinition/ResponseUser'
+ *        type: object
+ *        $ref: '#/definitions/ResponseUser'
  *      lostBy:
- *        $ref: '#/deffinition/ResponseUser'
+ *        type: object
+ *        $ref: '#/definitions/ResponseUser'
  *      returnedBy:
- *        $ref: '#/deffinition/ResponseUser'
+ *        type: object
+ *        $ref: '#/definitions/ResponseUser'
  *      requestedBy:
  *        type: array
  *        items:
- *          $ref: '#/deffinition/ResponseUser'
+ *          $ref: '#/definitions/ResponseUser'
  *  BookState:
  *    allOf:
  *      - $ref: '#/definitions/NewBookState'
  *      - type: object
  *        required:
  *          _id:
- *           type: string
+ *             type: string
  *          createdAt:
  *             type: dateTime
  *          updatedAt:
@@ -41,6 +47,7 @@ const Schema = mongoose.Schema;
  */
 const bookStateSchema = new Schema({
     book: {type: Schema.Types.ObjectId, ref: 'Book'},
+    currentStatus: {type: String},
     uploadedBy: {type: Schema.Types.ObjectId, ref: 'User'},
     lentBy: {type: Schema.Types.ObjectId, ref: 'User'},
     returnedBy: {type: Schema.Types.ObjectId, ref: 'User'},
