@@ -131,9 +131,9 @@ describe('Book api', function () {
         updatedBook = Object.assign({}, savedBook);
         updatedBook.name = updatedBook.name + ' New';
         updatedBook.authors.push({name: 'Test Author'});
-        updatedBook.authors.push({name: 'Test Next Author'});
+        updatedBook.authors.push({name: 'Test Author Test'});
         updatedBook.authors.shift();
-
+        updatedBook.isbn13 = '';
         request(app)
             .put('/api/book/' + savedBook._id)
             .send(updatedBook)
@@ -145,14 +145,31 @@ describe('Book api', function () {
 
                 testUtils.assertBasicSucessMessage(result.body);
                 assertProperBook(result.body.data, updatedBook);
-
                 assert(result.body.data.authors.length, 2);
+                assert.equal(result.body.data.isbn13, '', 'Asserting isbn13 is set to blank');
                 assert(result.body.data.authors[1].name,updatedBook.authors[1].name);
-
+                updatedBook = result.body.data;
                 done();
             })
     });
 
+    it('Updates only book name', function (done) {
+        const updatedBookCopy = {name: updatedBook.name+ 'updated'};
+        request(app)
+            .put('/api/book/' + savedBook._id)
+            .send(updatedBook)
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(function (err, result) {
+                if (err) throw  err;
+
+                testUtils.assertBasicSucessMessage(result.body);
+                assert(result.body.data.name, updatedBookCopy);
+                assert.deepStrictEqual(result.body.data.authors,updatedBook.authors);
+                done();
+            })
+    });
     it('Deletes book by id', function (done) {
         request(app)
             .delete('/api/book/' + savedBook._id)

@@ -4,6 +4,58 @@
 const bookRepo = require('../repositories/book');
 const sendResponse = require('../utils/sendResponse');
 const authorRepo = require('../repositories/author');
+
+const createAuthors = function (authors) {
+    return authors.map(function (author) {
+        return authorRepo.createAuthor(author);
+    });
+};
+
+const createAuthorsIfNotPresent = function (authors) {
+    let authorFindPromises = [];
+    authors.forEach(function (author) {
+        if (author._id) {
+            authorFindPromises.push(Promise.resolve(author))
+            return;
+        }
+        ;
+
+        let foundAuthorPromise = {};
+        if (author.email) {
+            foundAuthorPromise = authorRepo.findByNameOrEmail(author.name, author.email)
+                .then(function (foundUser) {
+                    if (foundUser) {
+                        return Promise.resolve(foundUser);
+                    } else {
+                        return authorRepo.createAuthor(author)
+                    }
+                });
+        } else {
+            foundAuthorPromise = authorRepo.findByName(author.name).then(function (foundUser) {
+                if (foundUser) {
+                    return Promise.resolve(foundUser);
+                } else {
+                    return authorRepo.createAuthor(author);
+                }
+            });
+        }
+        ;
+        authorFindPromises.push(foundAuthorPromise);
+    });
+    return authorFindPromises;
+};
+
+const getAuthorIds = function (authors) {
+    let authorIds = {};
+    authors.forEach(function (author) {
+        const authorId = author._id || author[0]._id;
+        if (!authorIds[authorId]) {
+            authorIds[authorId] = authorId;
+        }
+    });
+    return Object.keys(authorIds);
+};
+
 /**
  * @swagger
  * /books:
@@ -149,16 +201,11 @@ exports.getBooks = function (req, res) {
  *
  *
  */
-exports.getBookById = function(req, res) {
+exports.getBookById = function (req, res) {
     sendResponse(res, {'message': 'Found Book', status: true, data: req.bookSharing.book}, 200);
-}
+};
 
 
-const createAuthors = function (authors) {
-    return authors.map(function (author) {
-        return authorRepo.createAuthor(author);
-    });
-}
 /**
  * @swagger
  * /book:
@@ -209,19 +256,18 @@ const createAuthors = function (authors) {
  *                 type: string
  */
 exports.post = function (req, res) {
-
-    const authors = createAuthors(req.body.authors);
-
+    const authors = createAuthorsIfNotPresent(req.body.authors);
     Promise.all(authors).then(function (authors) {
-            const authorIds = authors.map(function (author) {
-                return author._id;
-            });
+            const authorIds = getAuthorIds(authors);
             req.body.authors = authorIds;
 
             bookRepo.createBook(req.body).then(function (book) {
                 bookRepo.findById(book._id).then(function (populatedBook) {
-                    sendResponse(res, {'message': 'Book created', status: true, data: populatedBook}, 200);
-                });
+                        sendResponse(res, {'message': 'Book created', status: true, data: populatedBook}, 200);
+                    }, function (err) {
+                        sendResponse(res, {'message': 'Could not fetch saved book.', status: false, error: err}, 500);
+                    }
+                );
             }, function (err) {
                 sendResponse(res, {'message': 'Could not save book.', status: false, error: err}, 500);
             }).end();
@@ -230,8 +276,7 @@ exports.post = function (req, res) {
             sendResponse(res, {'message': 'Could not save author.', status: false, error: err}, 500);
         }
     );
-
-}
+};
 
 
 /**
@@ -294,13 +339,36 @@ exports.post = function (req, res) {
  *
  */
 exports.put = function (req, res) {
-    bookRepo.updateBook(req.body, req.bookSharing.book ).then(function (updatedBook) {
-        sendResponse(res, {'message': 'Updated Book', status: true, data: updatedBook}, 200);
-    }, function (err) {
-        sendResponse(res, {'message': 'Could not update book', status: false, error: err}, 500);
-    }).end();
-}
 
+    const updateBook = function() {
+        bookRepo.updateBook(req.body, req.bookSharing.book).then(function (updatedBook) {
+            bookRepo.findById(updatedBook._id).then(function (fetchedBook) {
+                sendResponse(res, {'message': 'Updated Book', status: true, data: fetchedBook}, 200);
+            }, function (err) {
+                sendResponse(res, {'message': 'Could not fetch updated book.', status: false, error: err}, 500);
+            }).end();
+        }, function (err) {
+            sendResponse(res, {'message': 'Could not update book', status: false, error: err}, 500);
+        }).end();
+    }
+
+    if(req.body.authors) {
+        const authors = createAuthorsIfNotPresent(req.body.authors);
+        Promise.all(authors).then(function (newAuthors) {
+            if(newAuthors) {
+                const authorIds = getAuthorIds(newAuthors);
+                req.body.authors = authorIds;
+            } else {
+                req.body.authors = undefined;
+            }
+            updateBook();
+        }, function(err) {
+            sendResponse(res, {'message': 'Could not save author.', status: false, error: err}, 500);
+        });
+    } else {
+        updateBook();
+    }
+}
 
 
 /**
@@ -362,8 +430,7 @@ exports.delete = function (req, res) {
     }, function (err) {
         sendResponse(res, {'message': 'Could not delete book.', status: false, error: err}, 500);
     });
-}
-
+};
 
 
 /**
@@ -422,7 +489,7 @@ exports.delete = function (req, res) {
  */
 exports.currentStatusOfBook = function (req, res) {
     sendResponse(res, {'message': 'Found Book Status', status: true, data: req.bookSharing.bookStatus}, 200);
-}
+};
 
 /**
  * @swagger
