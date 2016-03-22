@@ -6,10 +6,12 @@ const routes = express.Router();
 
 const bookController = require('../controllers/book');
 const userController = require('../controllers/user');
+const bookWorkflowController = require('../controllers/bookWorkflow');
 
 const findUserById = require('../middlewares/findUser/findUserById');
 const findUserByName = require('../middlewares/findUser/findUserByName');
 const findBookById = require('../middlewares/findBook/findBookById');
+const findBookStateByBookId = require('../middlewares/findBookState/findBookStateByBookId');
 
 routes.route('/books').get(bookController.getBooks);
 routes.route('/book').post(bookController.post);
@@ -18,6 +20,9 @@ routes.route('/book/:id')
     .get(bookController.getBookById)
     .put(bookController.put)
     .delete(bookController.delete);
+
+routes.route('/book/workflow').all(findBookStateByBookId);
+routes.route('/book/workflow/status/:bookId').get(bookWorkflowController.currentStateOfBook);
 
 routes.route('/users').get(userController.getUsers);
 routes.route('/user').post(userController.post);
