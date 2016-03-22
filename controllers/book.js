@@ -12,33 +12,34 @@ const createAuthors = function (authors) {
 };
 
 const createAuthorsIfNotPresent = function (authors) {
-
     let authorFindPromises = [];
     authors.forEach(function (author) {
         if (author._id) {
             authorFindPromises.push(Promise.resolve(author))
             return;
-        };
+        }
+        ;
 
         let foundAuthorPromise = {};
         if (author.email) {
             foundAuthorPromise = authorRepo.findByNameOrEmail(author.name, author.email)
-                .then(function(foundUser) {
-                    if(foundUser) {
+                .then(function (foundUser) {
+                    if (foundUser) {
                         return Promise.resolve(foundUser);
                     } else {
                         return authorRepo.createAuthor(author)
                     }
                 });
         } else {
-            foundAuthorPromise = authorRepo.findByName(author.name).then(function(foundUser) {
-                if(foundUser) {
+            foundAuthorPromise = authorRepo.findByName(author.name).then(function (foundUser) {
+                if (foundUser) {
                     return Promise.resolve(foundUser);
                 } else {
                     return authorRepo.createAuthor(author);
                 }
             });
-        };
+        }
+        ;
         authorFindPromises.push(foundAuthorPromise);
     });
     return authorFindPromises;
@@ -338,22 +339,35 @@ exports.post = function (req, res) {
  *
  */
 exports.put = function (req, res) {
-    const authors = createAuthorsIfNotPresent(req.body.authors);
-    Promise.all(authors).then(function (newAuthors) {
-        const authorIds = getAuthorIds(newAuthors);
-        req.body.authors = authorIds;
+
+    const updateBook = function() {
         bookRepo.updateBook(req.body, req.bookSharing.book).then(function (updatedBook) {
             bookRepo.findById(updatedBook._id).then(function (fetchedBook) {
                 sendResponse(res, {'message': 'Updated Book', status: true, data: fetchedBook}, 200);
             }, function (err) {
                 sendResponse(res, {'message': 'Could not fetch updated book.', status: false, error: err}, 500);
-            });
+            }).end();
         }, function (err) {
             sendResponse(res, {'message': 'Could not update book', status: false, error: err}, 500);
         }).end();
-    }, function(err) {
-        sendResponse(res, {'message': 'Could not save author.', status: false, error: err}, 500);
-    });
+    }
+
+    if(req.body.authors) {
+        const authors = createAuthorsIfNotPresent(req.body.authors);
+        Promise.all(authors).then(function (newAuthors) {
+            if(newAuthors) {
+                const authorIds = getAuthorIds(newAuthors);
+                req.body.authors = authorIds;
+            } else {
+                req.body.authors = undefined;
+            }
+            updateBook();
+        }, function(err) {
+            sendResponse(res, {'message': 'Could not save author.', status: false, error: err}, 500);
+        });
+    } else {
+        updateBook();
+    }
 }
 
 
