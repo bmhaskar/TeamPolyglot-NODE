@@ -131,9 +131,9 @@ describe('Book api', function () {
         updatedBook = Object.assign({}, savedBook);
         updatedBook.name = updatedBook.name + ' New';
         updatedBook.authors.push({name: 'Test Author'});
-        updatedBook.authors.push({name: 'Test Next Author'});
+        updatedBook.authors.push({name: 'Test Author Test'});
         updatedBook.authors.shift();
-
+        updatedBook.isbn13 = '';
         request(app)
             .put('/api/book/' + savedBook._id)
             .send(updatedBook)
@@ -145,8 +145,8 @@ describe('Book api', function () {
 
                 testUtils.assertBasicSucessMessage(result.body);
                 assertProperBook(result.body.data, updatedBook);
-
                 assert(result.body.data.authors.length, 2);
+                assert.equal(result.body.data.isbn13, '', 'Asserting isbn13 is set to blank');
                 assert(result.body.data.authors[1].name,updatedBook.authors[1].name);
 
                 done();
