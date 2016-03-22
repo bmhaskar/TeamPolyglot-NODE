@@ -48,7 +48,7 @@ const Schema = mongoose.Schema;
  *              format: date-time
  */
 const bookStateSchema = new Schema({
-    book: {type: Schema.Types.ObjectId, ref: 'Book'},
+    book: {type: Schema.Types.ObjectId, ref: 'Book', required: true, unique: true},
     currentStatus: {type: String},
     uploadedBy: {type: Schema.Types.ObjectId, ref: 'User'},
     lentBy: {type: Schema.Types.ObjectId, ref: 'User'},
