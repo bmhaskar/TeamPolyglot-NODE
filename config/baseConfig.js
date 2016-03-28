@@ -24,12 +24,27 @@ const config = {
             path.resolve(__dirname,'..', 'models', 'book.js'),
             path.resolve(__dirname,'..', 'models', 'bookState.js'),
             path.resolve(__dirname,'..', 'controllers', 'book.js'),
-            path.resolve(__dirname,'..', 'controllers', 'user.js')
+            path.resolve(__dirname,'..', 'controllers', 'user.js'),
+            path.resolve(__dirname,'..', 'controllers', 'bookWorkflow.js'),
+            path.resolve(__dirname,'..', 'controllers', 'bookReport.js'),
+            path.resolve(__dirname,'..', 'controllers', 'userReport.js')
         ],
         tags: [
             {
                 name: 'Book',
                 description: 'CRUD Operations for Book'
+            },
+            {
+                name: 'Book Workflow',
+                description: 'Book lending workflow'
+            },
+            {
+                name: 'Book Reports',
+                description: 'Reporting for Books and reading statistics'
+            },
+            {
+                name: 'User Reports',
+                description: 'Reporting for users'
             },
             {
                 name: 'User',

@@ -130,7 +130,7 @@ const publisherSchema = new Schema({
  *       - $ref: '#/definitions/NewBook'
  *       - type: object
  *         required:
- *         - _id
+ *           - _id
  *         properties:
  *           _id:
  *             type: string
