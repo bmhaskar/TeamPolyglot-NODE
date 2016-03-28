@@ -20,7 +20,7 @@ const authorSchema = new Schema({
  *         type: string
  *         example: New Author
  *       email:
- *         type: sting
+ *         type: string
  *         example: newauthor@mailinator.com
  *   Author:
  *     allOf:

@@ -155,7 +155,7 @@ exports.getBooks = function (req, res) {
  *     description: Retrieves book details by id
  *     tags:
  *      - Book
- *     properties:
+ *     parameters:
  *       - name: bookId
  *         in: path
  *         required: true

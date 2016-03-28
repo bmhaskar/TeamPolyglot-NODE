@@ -38,8 +38,8 @@ const Schema = mongoose.Schema;
  *      - $ref: '#/definitions/NewBookState'
  *      - type: object
  *        required:
- *           _id:
- *             type: string
+ *          - _id
+ *        properties:
  *           createdAt:
  *              type: string
  *              format: date-time

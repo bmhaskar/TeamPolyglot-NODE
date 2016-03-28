@@ -259,7 +259,7 @@ exports.rejectBookRequest = function (req, res) {
  *        type: string
  *      - name: userId
  *        in: path
- *        required: false
+ *        required: true
  *        description: The id of user who is returning the book. If not provided current logged in user is used
  *        type: string
  *     responses:
@@ -322,7 +322,7 @@ exports.markBookAsReturned = function (req, res) {
  *        type: string
  *      - name: userId
  *        in: path
- *        required: false
+ *        required: true
  *        description: 'The id of user who had borrowed the book.
  *        If not provided, the recent borrower will be used as default.'
  *        type: string
