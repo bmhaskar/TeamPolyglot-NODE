@@ -125,6 +125,10 @@ const publisherSchema = new Schema({
  *         type: string
  *       isbn10:
  *         type: string
+ *       tags:
+ *         type: array
+ *         items:
+ *          type: string
  *   Book:
  *     allOf:
  *       - $ref: '#/definitions/NewBook'
@@ -166,7 +170,8 @@ const bookSchema = new Schema({
     publishedOn: {type: Date},
     publisher: publisherSchema,
     isbn13: String,
-    isbn10: String
+    isbn10: String,
+    tags: [{type: String, trim: true}]
 }, {timestamps: true});
 
 bookSchema.plugin(mongoosePaginate);
