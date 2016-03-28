@@ -27,7 +27,9 @@ const config = {
             path.resolve(__dirname,'..', 'controllers', 'user.js'),
             path.resolve(__dirname,'..', 'controllers', 'bookWorkflow.js'),
             path.resolve(__dirname,'..', 'controllers', 'bookReport.js'),
-            path.resolve(__dirname,'..', 'controllers', 'userReport.js')
+            path.resolve(__dirname,'..', 'controllers', 'userReport.js'),
+            path.resolve(__dirname,'..', 'controllers', 'bookSearch.js'),
+            path.resolve(__dirname,'..', 'controllers', 'authenticate.js')
         ],
         tags: [
             {
@@ -43,12 +45,20 @@ const config = {
                 description: 'Reporting for Books and reading statistics'
             },
             {
+                name: 'Book Search',
+                description: 'Search for Books'
+            },
+            {
                 name: 'User Reports',
                 description: 'Reporting for users'
             },
             {
                 name: 'User',
                 description: 'CRUD Operations for User'
+            },
+            {
+                name: 'Authenticate',
+                description: 'Authenticates User'
             }
         ]
     },
