@@ -22,13 +22,8 @@
  *                data:
  *                  type: object
  *                  $ref: '#/definitions/Book'
- *       400:
- *         description: Invalid input
- *         schema:
- *           allOf:
- *           - $ref: '#/definitions/Response'
  *       404:
- *        description: 'Requested books not found'
+ *        description: 'Requested book not found'
  *        schema:
  *         allOf:
  *          - $ref: '#/definitions/Response'
@@ -74,13 +69,8 @@ exports.getRecentlyAddedBook = function (req, res) {
  *                data:
  *                  type: object
  *                  $ref: '#/definitions/Book'
- *       400:
- *         description: Invalid input
- *         schema:
- *           allOf:
- *           - $ref: '#/definitions/Response'
  *       404:
- *        description: 'Requested books not found'
+ *        description: 'Requested book not found'
  *        schema:
  *         allOf:
  *          - $ref: '#/definitions/Response'
@@ -103,4 +93,8 @@ exports.getRecentlyAddedBook = function (req, res) {
 exports.getMostReadBook = function (req, res) {
 
 };
+
+
+
+
 

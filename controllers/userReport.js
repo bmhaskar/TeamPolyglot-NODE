@@ -95,7 +95,7 @@ exports.getRequestedBooksByUser = function (req, res) {
  *       - name: page
  *         in: query
  *         required: false
- *         description: 'Page number from where we want to start fetching books.'
+ *         description: 'Page number from where we want to start fetching books'
  *         type: integer
  *     responses:
  *       200:
