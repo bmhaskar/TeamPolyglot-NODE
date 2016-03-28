@@ -8,7 +8,7 @@
  *     description: Returns current status of the book
  *     summary: Current status of the book
  *     tags:
- *      - Book
+ *      - Book Workflow
  *     parameters:
  *      - name: bookId
  *        in: path
@@ -61,12 +61,12 @@ exports.currentStateOfBook = function (req, res) {
 /**
  * @swagger
  * /book/workflow/request/{bookId}:
- *   get:
+ *   put:
  *     operationId: requestBook
  *     description: Send a request to borrow a book
  *     summary: Borrow a book
  *     tags:
- *      - Book
+ *      - Book Workflow
  *     parameters:
  *      - name: bookId
  *        in: path
@@ -119,12 +119,12 @@ exports.requestBook = function (req, res) {
 /**
  * @swagger
  * /book/workflow/request/approve/{bookId}/{userId}:
- *   get:
+ *   put:
  *     operationId: approveBookRequest
  *     description: Approve the request for borrowing book
  *     summary: Lend a book
  *     tags:
- *      - Book
+ *      - Book Workflow
  *     parameters:
  *      - name: bookId
  *        in: path
@@ -182,12 +182,12 @@ exports.approveBookRequest = function (req, res) {
 /**
  * @swagger
  * /book/workflow/request/reject/{bookId}/{userId}:
- *   get:
+ *   put:
  *     operationId: rejectBookRequest
  *     description: Reject the request for borrowing book
  *     summary: Reject the request for borrowing a book
  *     tags:
- *      - Book
+ *      - Book Workflow
  *     parameters:
  *      - name: bookId
  *        in: path
@@ -245,12 +245,12 @@ exports.rejectBookRequest = function (req, res) {
 /**
  * @swagger
  * /book/workflow/return/{bookId}/{userId}:
- *   get:
+ *   put:
  *     operationId: markBookAsReturned
  *     description: Return borrowed book
  *     summary: Return Book
  *     tags:
- *      - Book
+ *      - Book Workflow
  *     parameters:
  *      - name: bookId
  *        in: path
@@ -308,12 +308,12 @@ exports.markBookAsReturned = function (req, res) {
 /**
  * @swagger
  * /book/workflow/lost/{bookId}/{userId}:
- *   get:
+ *   put:
  *     operationId: markBookAsLost
  *     description: Mark borrowed book as lost
  *     summary: Mark lost book
  *     tags:
- *      - Book
+ *      - Book Workflow
  *     parameters:
  *      - name: bookId
  *        in: path
