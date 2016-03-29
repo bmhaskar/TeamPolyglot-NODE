@@ -7,14 +7,21 @@ const routes = express.Router();
 const bookController = require('../controllers/book');
 const userController = require('../controllers/user');
 const bookWorkflowController = require('../controllers/bookWorkflow');
+const authenticationController = require('../controllers/authenticate');
 const bookStateController = require('../controllers/bookState');
+
+const authenticateRequest = require('../middlewares/authenticate/authenticate');
+
 
 const findUserById = require('../middlewares/findUser/findUserById');
 const findUserByName = require('../middlewares/findUser/findUserByName');
 const findBookById = require('../middlewares/findBook/findBookById');
 const findBookStateByBookId = require('../middlewares/findBookState/findBookStateByBookId');
 
-routes.route('/books').get(bookController.getBooks);
+routes.route('/authenticate/login').post(authenticationController.login);
+
+
+routes.route('/books').get(authenticateRequest, bookController.getBooks);
 routes.route('/book').post(bookController.post);
 routes.route('/book/:id')
     .all(findBookById)

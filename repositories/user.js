@@ -12,6 +12,9 @@ userRepo.findByName = function (username) {
     return User.findOne({username: username}).exec();
 };
 
+userRepo.findByNameWithPassword = function (username) {
+    return User.findOne({username: username}).select('username +password').exec();
+};
 userRepo.updateUser = function (newUser, existingUser) {
     Object.assign(existingUser,
         {
