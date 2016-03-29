@@ -1,72 +1,16 @@
 'use strict';
 
-/**
- * @swagger
- * /book/workflow/status/{bookId}:
- *   get:
- *     operationId: currentStatusOfBook
- *     description: Returns current status of the book
- *     summary: Current status of the book
- *     tags:
- *      - Book Workflow
- *     parameters:
- *      - name: bookId
- *        in: path
- *        required: true
- *        description: The id of book which is requested.
- *        type: string
- *     responses:
- *       200:
- *        description: Requested book's current state
- *        schema:
- *          allOf:
- *           - $ref: '#/definitions/Response'
- *           - type: object
- *             properties:
- *                status:
- *                  default: true
- *                data:
- *                  type: object
- *                  $ref: '#/definitions/BookState'
- *       400:
- *         description: Invalid input
- *         schema:
- *           allOf:
- *           - $ref: '#/definitions/Response'
- *       404:
- *        description: 'Requested books not found'
- *        schema:
- *         allOf:
- *          - $ref: '#/definitions/Response'
- *       406:
- *        description: Not acceptable request.
- *        schema:
- *          allOf:
- *          - $ref: '#/definitions/Response'
- *       500:
- *        description: Internal server error
- *        schema:
- *          allOf:
- *          - $ref: '#/definitions/Response'
- *          - type: object
- *            properties:
- *              error:
- *                type: string
- *
- */
-exports.currentStateOfBook = function (req, res) {
-    sendResponse(res, {'message': 'Found Book Status', status: true, data: req.bookSharing.bookStatus}, 200);
-};
+const sendResponse = require('../utils/sendResponse');
 
 /**
  * @swagger
- * /book/workflow/request/{bookId}:
+ * /book/request/{bookId}:
  *   put:
  *     operationId: requestBook
  *     description: Send a request to borrow a book
  *     summary: Borrow a book
  *     tags:
- *      - Book Workflow
+ *      - Book Request
  *     parameters:
  *      - name: bookId
  *        in: path
@@ -118,13 +62,13 @@ exports.requestBook = function (req, res) {
 
 /**
  * @swagger
- * /book/workflow/request/approve/{bookId}/{userId}:
+ * /book/request/approve/{bookId}/{userId}:
  *   put:
  *     operationId: approveBookRequest
  *     description: Approve the request for borrowing book
  *     summary: Lend a book
  *     tags:
- *      - Book Workflow
+ *      - Book Request
  *     parameters:
  *      - name: bookId
  *        in: path
@@ -181,13 +125,13 @@ exports.approveBookRequest = function (req, res) {
 
 /**
  * @swagger
- * /book/workflow/request/reject/{bookId}/{userId}:
+ * /book/request/reject/{bookId}/{userId}:
  *   put:
  *     operationId: rejectBookRequest
  *     description: Reject the request for borrowing book
  *     summary: Reject the request for borrowing a book
  *     tags:
- *      - Book Workflow
+ *      - Book Request
  *     parameters:
  *      - name: bookId
  *        in: path
@@ -244,13 +188,13 @@ exports.rejectBookRequest = function (req, res) {
 
 /**
  * @swagger
- * /book/workflow/return/{bookId}/{userId}:
+ * /book/return/{bookId}/{userId}:
  *   put:
  *     operationId: markBookAsReturned
  *     description: Return borrowed book
  *     summary: Return Book
  *     tags:
- *      - Book Workflow
+ *      - Book Return and Lost Operations
  *     parameters:
  *      - name: bookId
  *        in: path
@@ -307,13 +251,13 @@ exports.markBookAsReturned = function (req, res) {
 
 /**
  * @swagger
- * /book/workflow/lost/{bookId}/{userId}:
+ * /book/lost/{bookId}/{userId}:
  *   put:
  *     operationId: markBookAsLost
  *     description: Mark borrowed book as lost
  *     summary: Mark lost book
  *     tags:
- *      - Book Workflow
+ *      - Book Return and Lost Operations
  *     parameters:
  *      - name: bookId
  *        in: path

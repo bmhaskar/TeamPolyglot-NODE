@@ -135,6 +135,11 @@ exports.logout = function (req, res) {
  *               data:
  *                 type: string
  *                 default: ''
+ *       403:
+ *         description: 'Forbidden: access is denied'
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
  *       404:
  *         description: 'Requested token was not found'
  *         schema:
@@ -160,3 +165,115 @@ exports.revokeToken = function (req, res) {
 
 };
 
+/**
+ * @swagger
+ * /authenticate/forgot-password/{username}:
+ *    get:
+ *      operationId: forgotPassword
+ *      tags:
+ *        - Authenticate
+ *      parameters:
+ *       -  name: username
+ *          in: path
+ *          type: string
+ *          required: true
+ *          description: Name of the user
+ *      summary: Sends an email with the link to reset password
+ *      responses:
+ *       200:
+ *         description: Nothing will be returned as data.
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               status:
+ *                 default: true
+ *               data:
+ *                 type: string
+ *                 default: ''
+ *       404:
+ *         description: 'Requested user was not found'
+ *         schema:
+ *          allOf:
+ *           - $ref: '#/definitions/Response'
+ *       406:
+ *         description: Not acceptable request.
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *       500:
+ *         description: Internal server error
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               error:
+ *                 type: string
+ *
+ */
+exports.forgotPassword = function (req, res) {
+
+};
+
+/**
+ * @swagger
+ * /authenticate/reset-password/{token}:
+ *    get:
+ *      operationId: resetPassword
+ *      tags:
+ *        - Authenticate
+ *      parameters:
+ *       -  name: token
+ *          in: path
+ *          type: string
+ *          required: true
+ *          description: Token to identify the user
+ *      summary: Randomely generates the password and sets the password for user identified by token
+ *      responses:
+ *       200:
+ *         description: Nothing will be returned as data.
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               status:
+ *                 default: true
+ *               data:
+ *                 type: string
+ *                 default: ''
+ *       401:
+ *         description: Token expired.
+ *         schema:
+ *          allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               error:
+ *                 example: 'Reset password link expired, please regenerate link via forgot-password API'
+ *       404:
+ *         description: 'Requested user was not found'
+ *         schema:
+ *          allOf:
+ *           - $ref: '#/definitions/Response'
+ *       406:
+ *         description: Not acceptable request.
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *       500:
+ *         description: Internal server error
+ *         schema:
+ *           allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               error:
+ *                 type: string
+ *
+ */
+exports.resetPassword = function (req, res) {
+
+};
