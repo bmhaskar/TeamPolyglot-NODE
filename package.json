@@ -4,7 +4,8 @@
   "description": "This is a book sharing application. It functions as a distributed library management, also maintains the personal catelog. ",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests --recursive"
+    "test": "mocha tests --recursive",
+    "start": "node index.js"
   },
   "keywords": [
     "Book",
