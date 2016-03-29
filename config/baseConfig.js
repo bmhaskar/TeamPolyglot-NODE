@@ -29,7 +29,8 @@ const config = {
             path.resolve(__dirname,'..', 'controllers', 'bookReport.js'),
             path.resolve(__dirname,'..', 'controllers', 'userReport.js'),
             path.resolve(__dirname,'..', 'controllers', 'bookSearch.js'),
-            path.resolve(__dirname,'..', 'controllers', 'authenticate.js')
+            path.resolve(__dirname,'..', 'controllers', 'authenticate.js'),
+            path.resolve(__dirname,'..', 'controllers', 'search.js')
         ],
         tags: [
             {
@@ -47,6 +48,10 @@ const config = {
             {
                 name: 'Book Search',
                 description: 'Search for Books'
+            },
+            {
+                name: 'Search',
+                description: 'Abstract search for all entities'
             },
             {
                 name: 'User Reports',
