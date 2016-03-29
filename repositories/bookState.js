@@ -11,7 +11,7 @@ BookState.createBookState= function(newBookState) {
 
 };
 BookState.findByBookId = function(bookId) {
-    BookState.findOne({book: bookId}).populate('book uploadedBy lentBy returnedBy requestedBy lostBy').exec();
+    return BookState.findOne({book: bookId}).populate('book uploadedBy lentBy returnedBy requestedBy lostBy').exec();
 };
 
 module.exports = BookState;

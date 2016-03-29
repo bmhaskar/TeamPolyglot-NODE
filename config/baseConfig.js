@@ -30,7 +30,8 @@ const config = {
             path.resolve(__dirname,'..', 'controllers', 'userReport.js'),
             path.resolve(__dirname,'..', 'controllers', 'bookSearch.js'),
             path.resolve(__dirname,'..', 'controllers', 'authenticate.js'),
-            path.resolve(__dirname,'..', 'controllers', 'search.js')
+            path.resolve(__dirname,'..', 'controllers', 'search.js'),
+            path.resolve(__dirname,'..', 'controllers', 'bookState.js')
         ],
         tags: [
             {
@@ -38,8 +39,16 @@ const config = {
                 description: 'CRUD Operations for Book'
             },
             {
-                name: 'Book Workflow',
-                description: 'Book lending workflow'
+                name: 'Book Request',
+                description: 'Book requesting operations'
+            },
+            {
+                name: 'Book Status',
+                description: 'Returns the current status of the book'
+            },
+            {
+                name: 'Book Return and Lost Operations',
+                description: 'API\'s for marking book lost or returned'
             },
             {
                 name: 'Book Reports',
