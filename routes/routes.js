@@ -24,7 +24,7 @@ routes.route('/authenticate/logout').post(authenticateRequest,authenticationCont
 
 
 routes.route('/books').get(authenticateRequest, bookController.getBooks);
-routes.route('/book').post(bookController.post);
+routes.route('/book').post(authenticateRequest, bookController.post);
 routes.route('/book/:id')
     .all(findBookById)
     .get(bookController.getBookById)
@@ -33,9 +33,12 @@ routes.route('/book/:id')
 
 routes.route('/book/status/:bookId').get(findBookStateByBookId, bookStateController.currentStateOfBook);
 
-routes.route('/book/request/:bookId').put(findBookStateByBookId, bookWorkflowController.requestBook);
-routes.route('/book/request/approve/:bookId').put(findBookStateByBookId, bookWorkflowController.approveBookRequest);
-routes.route('/book/request/reject/:bookId').put(findBookStateByBookId, bookWorkflowController.rejectBookRequest);
+routes.route('/book/request/:bookId').put(authenticateRequest, findBookStateByBookId, bookWorkflowController.requestBook);
+routes.route('/book/request/approve/:bookId/:userId').put(authenticateRequest, findBookStateByBookId, findUserById, bookWorkflowController.approveBookRequest);
+routes.route('/book/request/reject/:bookId/:userId').put(authenticateRequest, findBookStateByBookId, findUserById,  bookWorkflowController.rejectBookRequest);
+
+routes.route('/book/return/:bookId/:userId').put(authenticateRequest, findBookStateByBookId, findUserById,  bookWorkflowController.markBookAsReturned);
+//routes.route('/book/lost/:bookId/:userId').put(authenticateRequest, findBookStateByBookId, bookWorkflowController.markBookAsLost);
 
 routes.route('/users').get(userController.getUsers);
 routes.route('/user').post(userController.post);

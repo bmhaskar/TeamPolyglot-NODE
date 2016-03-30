@@ -11,6 +11,9 @@ const routes = require('../routes/routes');
 const setResponseTypeToJson = require('./setResponseTypeJson/setResponseTypeJson');
 const reqTypeValidaton = require('./validation/requestTypeValidation');
 
+const addEventHandlers = require('../eventHandlers/eventHandlers');
+
+addEventHandlers();
 
 const middleware = express();
 
