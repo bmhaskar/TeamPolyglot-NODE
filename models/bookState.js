@@ -49,7 +49,7 @@ const Schema = mongoose.Schema;
  */
 const bookStateSchema = new Schema({
     book: {type: Schema.Types.ObjectId, ref: 'Book', required: true, unique: true},
-    currentStatus: {type: String},
+    currentStatus: {type: String}, //Possible values for this are available, not available, lost
     uploadedBy: {type: Schema.Types.ObjectId, ref: 'User'},
     lentBy: {type: Schema.Types.ObjectId, ref: 'User'},
     returnedBy: {type: Schema.Types.ObjectId, ref: 'User'},

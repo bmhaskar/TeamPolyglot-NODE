@@ -4,5 +4,5 @@ module.exports = function(res, msg, statusCode) {
     if(statusCode) {
         res.status(statusCode);
     }
-    res.send(msg);
+    return res.send(msg).end();
 }

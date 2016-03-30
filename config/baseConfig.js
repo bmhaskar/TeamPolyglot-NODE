@@ -80,7 +80,10 @@ const config = {
     token: {
         secret: 'qwertyuiopasdfghjklzxcvbnm123456',
         expiresIn: '1d'
-    }
+    },
+    eventHandlers: [
+      path.resolve(__dirname,'..', 'eventHandlers', 'book','book.js')
+    ]
 
 };
 
