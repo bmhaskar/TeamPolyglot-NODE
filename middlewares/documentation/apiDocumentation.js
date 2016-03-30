@@ -2,7 +2,7 @@
 
 const express = require('express');
 const routes = express.Router();
-const url = require('url')
+const url = require('url');
 
 const config = require('../../config/config');
 const reqTypeValidaton = require('../validation/requestTypeValidation');
