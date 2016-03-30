@@ -17,6 +17,6 @@ routes.get('/api/doc-specs.json', reqTypeValidaton, allowCors, function (req, re
 routes.get('/api/docs', function (req, res) {
     const urlString = url.format({hostname: config.host, port: config.port, pathname: '/api/doc-specs.json', protocol: 'http'});
     res.redirect('/public/api-docs/index.html?url=' + urlString);
-})
+});
 
 module.exports = routes;
