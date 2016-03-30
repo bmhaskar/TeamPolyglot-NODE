@@ -76,7 +76,12 @@ const config = {
             }
         ]
     },
-    host: process.env.HOST || 'localhost'
+    host: process.env.HOST || 'localhost',
+    token: {
+        secret: 'qwertyuiopasdfghjklzxcvbnm123456',
+        expiresIn: '1d'
+    }
+
 };
 
 module.exports = config;

@@ -122,6 +122,7 @@ userSchema.pre('save', function (callback) {
     });
 });
 
+//@todo: separate hashing login from here to util
 userSchema.methods.verifyPassword = function(password, cb) {
     bcrypt.compare(password, this.password, function(err, isMatch) {
         if (err) return cb(err);

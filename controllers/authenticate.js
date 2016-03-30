@@ -1,4 +1,8 @@
 'use strict';
+const jwt = require('jsonwebtoken');
+const passport = require('../middlewares/passport/localStrategy');
+const config = require('../config/config');
+const sendResponse = require('../utils/sendResponse');
 /**
  * @swagger
  * /authenticate/login:
@@ -58,8 +62,26 @@
  *                type: string
  *
  */
-exports.login = function (req, res) {
+exports.login = function (req, res, next) {
     
+    passport.authenticate('local', function(err, user, info) {
+
+        if (err) {
+            sendResponse(res, {message: 'Internal server error',  status: false}, 500);
+        }
+
+        if (!user) {
+            sendResponse(res, {message: info.message,  status: false}, info.statusCode);
+        }
+        //user has authenticated correctly thus we create a JWT token
+        jwt.sign({ userId: user._id}, config.token.secret, {
+            issuer: config.host,
+            expiresIn: config.token.expiresIn
+        }, function (token) {
+            sendResponse(res, {message: 'Login successful', data: token, status: true}, 200);
+        });
+
+    })(req, res, next);
 };
 /**
  * @swagger
