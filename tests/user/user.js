@@ -9,29 +9,6 @@ const testUtils = require('../../utils/testUtils');
 let app = {};
 
 describe('User api', function () {
-    let user = {
-        "username": "bmhaskar1",
-        "password": "xyz",
-        "email": "bmhaskar1@mailinator.com",
-        "roles": [
-            {
-                "name": "admin"
-            }
-        ]
-    };
-
-    const createUser = function (cb, user, status) {
-        status = status || 200;
-        request(app)
-            .post('/api/user')
-            .send(user)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .expect('Content-Type', /json/)
-            .expect(status)
-            .end(cb);
-    };
-
     const findUserById = function (cb, user, status) {
         status = status || 200;
         request(app)
@@ -43,11 +20,11 @@ describe('User api', function () {
             .end(cb);
     }
 
-    const updateUserById = function(cb, user, status) {
+    const updateUserById = function (cb, user, status) {
         status = status || 200;
         request(app)
             .put('/api/user/id/' + user._id)
-            .send(user)
+            .send(testUtils.user)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
             .expect('Content-Type', /json/)
@@ -55,11 +32,11 @@ describe('User api', function () {
             .end(cb);
     };
 
-    const updateUserByName = function(cb, user, status) {
+    const updateUserByName = function (cb, user, status) {
         status = status || 200;
         request(app)
             .put('/api/user/username/' + user.username)
-            .send(user)
+            .send(testUtils.user)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
             .expect('Content-Type', /json/)
@@ -96,17 +73,17 @@ describe('User api', function () {
     });
 
     it('creates user', function (done) {
-        createUser(function (err, result) {
+        testUtils.createUser(app, function (err, result) {
             testUtils.assrtBasicMessage(result.body);
-            assertProperUser(result.body.data, user);
-            user = result.body.data;
+            assertProperUser(result.body.data, testUtils.user);
+            testUtils.user = result.body.data;
             done();
-        }, user, 200);
+        }, testUtils.user, 200);
     });
 
     it('finds created user by username', function (done) {
         request(app)
-            .get('/api/user/username/' + user.username)
+            .get('/api/user/username/' + testUtils.user.username)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
             .expect('Content-Type', /json/)
@@ -114,7 +91,7 @@ describe('User api', function () {
             .end(function (err, result) {
 
                 testUtils.assrtBasicMessage(result.body);
-                assertProperUser(result.body.data, user);
+                assertProperUser(result.body.data, testUtils.user);
                 done();
             })
     });
@@ -122,9 +99,9 @@ describe('User api', function () {
     it('finds created user by id', function (done) {
         findUserById(function (err, result) {
             testUtils.assrtBasicMessage(result.body);
-            assertProperUser(result.body.data, user);
+            assertProperUser(result.body.data, testUtils.user);
             done();
-        }, user, 200)
+        }, testUtils.user, 200)
     });
 
     it('finds all users', function (done) {
@@ -143,35 +120,37 @@ describe('User api', function () {
                 assert(Array.isArray(result.body.data.docs), 'Asserting response has docs as array');
                 assert(result.body.data.docs.length, 'Asserting response has docs as filled array');
 
-                assertProperUser(result.body.data.docs[0], user);
+                assertProperUser(result.body.data.docs[0], testUtils.user);
 
                 done();
             })
     });
 
     it('updates an user by id', function (done) {
-        user.username = 'testman';
+
+        testUtils.user.username = 'testman';
+
         updateUserById(function (err, result) {
-                if (err) throw err;
-                testUtils.assrtBasicMessage(result.body);
-                assertProperUser(result.body.data, user);
-                done();
-        },user,200);
+            if (err) throw err;
+            testUtils.assrtBasicMessage(result.body);
+            assertProperUser(result.body.data, testUtils.user);
+            done();
+        }, testUtils.user, 200);
     });
 
     it('updates an user by name', function (done) {
-        user.email = 'testman@mailinator.com';
+        testUtils.user.email = 'testman@mailinator.com';
         updateUserByName(function (err, result) {
-                if (err) throw err;
-                testUtils.assrtBasicMessage(result.body);
-                assertProperUser(result.body.data, user);
-                done();
-        },user,200);
+            if (err) throw err;
+            testUtils.assrtBasicMessage(result.body);
+            assertProperUser(result.body.data, testUtils.user);
+            done();
+        }, testUtils.user, 200);
     });
 
     it('deletes an user by id', function (done) {
         request(app)
-            .delete('/api/user/id/' + user._id)
+            .delete('/api/user/id/' + testUtils.user._id)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
             .expect('Content-Type', /json/)
@@ -180,39 +159,39 @@ describe('User api', function () {
                 if (err) throw err;
 
                 testUtils.assrtBasicMessage(result.body);
-                assertProperUser(result.body.data, user);
+                assertProperUser(result.body.data, testUtils.user);
 
-                findUserById(function(err, result){
+                findUserById(function (err, result) {
                     assert(!err, 'Asserting that there are no errors');
                     assert.equal(result.body.status, false, 'Asserting deleted user is not found');
                     done();
-                }, user, 404);
+                }, testUtils.user, 404);
             })
     });
 
     it('does not create user with same username', function (done) {
-        user.password = "dummy";
-        createUser(function (err, result) {
-                if (err) throw err;
+        testUtils.user.password = "dummy";
+        testUtils.createUser(app, function (err, result) {
+            if (err) throw err;
 
-                testUtils.assrtBasicMessage(result.body);
-                assertProperUser(result.body.data, user);
-                createUser(function (err, result) {
-                    /**
-                     * @todo: Fix API to return correct response of  400 otherwise this test will keep failing
-                     * to achive it we need to add check in user creation whether such user exits or not.
-                     */
-                    //if (err) throw err;
-                    assert.equal(result.body.status, false, 'Asserting user creation failed for same username.');
-                },user, 400);
+            testUtils.assrtBasicMessage(result.body);
+            assertProperUser(result.body.data, testUtils.user);
+            testUtils.createUser(app, function (err, result) {
+                /**
+                 * @todo: Fix API to return correct response of  400 otherwise this test will keep failing
+                 * to achive it we need to add check in user creation whether such user exits or not.
+                 */
+                //if (err) throw err;
+                assert.equal(result.body.status, false, 'Asserting user creation failed for same username.');
+            }, testUtils.user, 400);
 
-                done();
-            },user, 200)
+            done();
+        }, testUtils.user, 200)
     });
 
     it('deletes an user by username', function (done) {
         request(app)
-            .delete('/api/user/username/' + user.username)
+            .delete('/api/user/username/' + testUtils.user.username)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
             .expect('Content-Type', /json/)
@@ -221,16 +200,15 @@ describe('User api', function () {
                 if (err) throw err;
 
                 testUtils.assrtBasicMessage(result.body);
-                assertProperUser(result.body.data, user);
+                assertProperUser(result.body.data, testUtils.user);
 
-                findUserById(function(err, result){
+                findUserById(function (err, result) {
                     assert(!err, 'Asserting that there are no errors');
                     assert.equal(result.body.status, false, 'Asserting deleted user is not found');
                     done();
-                }, user, 404);
+                }, testUtils.user, 404);
             })
     });
-
 
 
 });

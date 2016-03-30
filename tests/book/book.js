@@ -9,7 +9,7 @@ const testUtils = require('../../utils/testUtils');
 let app = {};
 
 describe('Book api', function () {
-
+    let token = "";
     let book = {
         "name": "Mastering NodeJS",
         "authors": [
@@ -62,19 +62,32 @@ describe('Book api', function () {
     before(function (done) {
         testUtils.cleanDatabases(function () {
             app = require('../../index');
-            done();
+            testUtils.getToken(app, function (userToken) {
+                token = userToken;
+                done();
+            });
         })
     });
+
     after(function (done) {
         testUtils.cleanDatabases(function () {
             done();
         });
     });
 
+    it('Responses with not authorised', function (done) {
+        request(app)
+            .get('/api/books')
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(401, done);
+    });
+
     it('Responses with not found', function (done) {
         request(app)
             .get('/api/books')
             .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer ' + token)
             .expect('Content-Type', /json/)
             .expect(404, done);
     });
@@ -99,6 +112,7 @@ describe('Book api', function () {
         request(app)
             .get('/api/books')
             .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer ' + token)
             .expect('Content-Type', /json/)
             .expect(200)
             .end(function (err, result) {
@@ -147,14 +161,14 @@ describe('Book api', function () {
                 assertProperBook(result.body.data, updatedBook);
                 assert(result.body.data.authors.length, 2);
                 assert.equal(result.body.data.isbn13, '', 'Asserting isbn13 is set to blank');
-                assert(result.body.data.authors[1].name,updatedBook.authors[1].name);
+                assert(result.body.data.authors[1].name, updatedBook.authors[1].name);
                 updatedBook = result.body.data;
                 done();
             })
     });
 
     it('Updates only book name', function (done) {
-        const updatedBookCopy = {name: updatedBook.name+ 'updated'};
+        const updatedBookCopy = {name: updatedBook.name + 'updated'};
         request(app)
             .put('/api/book/' + savedBook._id)
             .send(updatedBook)
@@ -166,7 +180,7 @@ describe('Book api', function () {
 
                 testUtils.assertBasicSucessMessage(result.body);
                 assert(result.body.data.name, updatedBookCopy);
-                assert.deepStrictEqual(result.body.data.authors,updatedBook.authors);
+                assert.deepStrictEqual(result.body.data.authors, updatedBook.authors);
                 done();
             })
     });
