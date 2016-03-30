@@ -3,6 +3,18 @@ const jwt = require('jsonwebtoken');
 const localAuthenticationStrategy = require('../authenticationStrategies/localStrategy');
 const config = require('../config/config');
 const sendResponse = require('../utils/sendResponse');
+const tokenBlackListRepo = require('../repositories/tokenBlackList');
+
+const handleJwtVerificationError = function (err, res) {
+    if(err && err.name == 'TokenExpiredError') {
+        sendResponse(res, {message:  'Token expired' , status: false}, 400);
+    } else if(err && err.name == 'JsonWebTokenError') {
+        sendResponse(res, {message:  'Invalid expired' , status: false}, 400);
+    } else if(err) {
+        sendResponse(res, {message:  'Token verification error' , status: false}, 500);
+    }
+};
+
 /**
  * @swagger
  * /authenticate/login:
@@ -92,6 +104,12 @@ exports.login = function (req, res, next) {
  *     summary: Logout current logged-in user
  *     tags:
  *      - Authenticate
+ *     parameters:
+ *      -  name: 'Authorization'
+ *         in: header
+ *         type: string
+ *         required: true
+ *         description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *     responses:
  *       200:
  *        description: Nothing will be returned as data.
@@ -127,7 +145,13 @@ exports.login = function (req, res, next) {
  *
  */
 exports.logout = function (req, res) {
+    const token = req.bookSharing.authenticatedUserToken;
 
+    tokenBlackListRepo.backlistToken(token, true).then(function (token) {
+        sendResponse(res, {message:  'Successfully logged out' , status: true}, 200);
+    }, function (err) {
+        sendResponse(res, {message:  'Internal server error. Could not logout.' , status: false}, 500);
+    });
 };
 
 /**
@@ -141,6 +165,11 @@ exports.logout = function (req, res) {
  *          required: true
  *          description: 'Token which needs to be revoked'
  *          type: string
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - Authenticate
  *      summary: Revokes the requested token
@@ -157,6 +186,11 @@ exports.logout = function (req, res) {
  *               data:
  *                 type: string
  *                 default: ''
+ *       400:
+ *          description: Invalid input
+ *          schema:
+ *            allOf:
+ *            - $ref: '#/definitions/Response'
  *       403:
  *         description: 'Forbidden: access is denied'
  *         schema:
@@ -184,7 +218,16 @@ exports.logout = function (req, res) {
  *
  */
 exports.revokeToken = function (req, res) {
+    const token = req.params.token;
+    jwt.verify(token, config.token.secret, function (err, decoded) {
+        if(err) handleJwtVerificationError(err, res);
 
+        tokenBlackListRepo.backlistToken(token).then(function (token) {
+            sendResponse(res, {message:  'Successfully revoked token' , status: true}, 200);
+        }, function (err) {
+            sendResponse(res, {message:  'Internal server error. Could not revoke token.' , status: false}, 500);
+        });
+    });
 };
 
 /**
