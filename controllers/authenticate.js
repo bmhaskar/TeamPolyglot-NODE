@@ -1,6 +1,6 @@
 'use strict';
 const jwt = require('jsonwebtoken');
-const passport = require('../middlewares/passport/localStrategy');
+const localAuthenticationStrategy = require('../authenticationStrategies/localStrategy');
 const config = require('../config/config');
 const sendResponse = require('../utils/sendResponse');
 /**
@@ -63,8 +63,8 @@ const sendResponse = require('../utils/sendResponse');
  *
  */
 exports.login = function (req, res, next) {
-    
-    passport.authenticate('local', function(err, user, info) {
+
+    localAuthenticationStrategy.authenticate('local', function(err, user, info) {
 
         if (err) {
             sendResponse(res, {message: 'Internal server error',  status: false}, 500);
