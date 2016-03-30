@@ -65,13 +65,18 @@ const getAuthorIds = function (authors) {
  *       -  name: limit
  *          in: query
  *          required: false
- *          description: 'Number of users to be retrieved'
+ *          description: 'Number of books to be retrieved'
  *          type: integer
  *       -  name: page
  *          in: query
  *          required: false
  *          description: 'Page number from where we want to start fetching books.'
  *          type: integer
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - Book
  *      summary: Retrieves list of books
@@ -127,7 +132,7 @@ const getAuthorIds = function (authors) {
  *
  */
 exports.getBooks = function (req, res) {
-
+    
     let page = req.query.page || 1;
     let limit = req.query.limit || 10;
 

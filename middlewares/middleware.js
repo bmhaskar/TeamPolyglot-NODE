@@ -2,6 +2,7 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const passport = require('passport');
 
 const config = require('../config/config');
 const apiDocumentation = require('./documentation/apiDocumentation');
@@ -16,6 +17,7 @@ const middleware = express();
 middleware.use(bodyParser.json());
 middleware.use(bodyParser.urlencoded({extended: true}));
 middleware.use(logger.genericLogger);
+middleware.use(passport.initialize());
 middleware.use(apiDocumentation);
 
 
