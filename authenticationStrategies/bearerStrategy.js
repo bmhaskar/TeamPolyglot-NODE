@@ -3,8 +3,8 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const bearerStrategy = require('passport-http-bearer').Strategy;
-const userRepo = require('../../repositories/user');
-const config = require('../../config/config');
+const userRepo = require('../repositories/user');
+const config = require('../config/config');
 
 passport.use(new bearerStrategy(
     function (token, done) {

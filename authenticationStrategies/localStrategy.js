@@ -2,7 +2,7 @@
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const userRepo = require('../../repositories/user');
+const userRepo = require('../repositories/user');
 
 passport.use(new LocalStrategy(
     function (username, password, done) {
