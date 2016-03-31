@@ -10,19 +10,38 @@ const authenticate = function (req, res, next) {
             sendResponse(res, {message: 'Internal server error', status: false}, 500);
         }
         if (!user) {
-            if (info && info.message) {
-                sendResponse(res, {message: info.message, status: false}, info.statusCode);
-            } else {
-                const newInfo = info.split(',').reduce(function (prev, current, index) {
-                        current = current.split('=').map((val) => val.trim().replace(/^"/,"").replace(/"$/,''));
-                        prev[current[0]] = current[1];
+            let newInfo = {};
+            if(info) {
+                if (info.message) {
+                    sendResponse(res, {message: info.message, status: false}, info.statusCode);
+                } else {
+
+                    newInfo = info.split(',').reduce(function (prev, current, index) {
+                        if(current.indexOf('=') != -1) {
+                            current = current.split('=').map((val) => val.trim().replace(/^"/, "").replace(/"$/, ''));
+                            prev[current[0]] = current[1];
+                        }
                         return prev;
                     },{});
+                    if(newInfo.error_description) {
+                        sendResponse(res, {
+                            message: newInfo.error_description ,
+                            status: false
+                        }, 401);
+                    } else {
+                        sendResponse(res, {
+                            message: 'Forbidden: access is denied.  Authorization header value is missing' ,
+                            status: false
+                        }, 400);
+                    }
+                }
+            } else {
                 sendResponse(res, {
-                    message: newInfo.error_description || 'Forbidden: access is denied. Token is missing or incorrect token format.',
+                    message: newInfo.error_description || 'Forbidden: access is denied. Authorization header value is incorrect.',
                     status: false
                 }, 401);
             }
+
         } else {
             req.bookSharing = req.bookSharing || {};
             req.bookSharing.authenticatedUserToken = info.token;
