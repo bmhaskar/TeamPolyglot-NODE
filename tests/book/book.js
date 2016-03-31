@@ -59,6 +59,7 @@ describe('Book api', function () {
     it('Responses with not authorised', function (done) {
         request(app)
             .get('/api/books')
+            .set('Authorization', token)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(401, done);
