@@ -15,14 +15,13 @@ userRepo.findByName = function (username) {
 userRepo.findByNameWithPassword = function (username) {
     return User.findOne({username: username}).select('username +password').exec();
 };
-userRepo.updateUser = function (newUser, existingUser) {
-    Object.assign(existingUser,
-        {
-            username: newUser.username || existingUser.username,
-            email: newUser.email || existingUser.email,
-            roles: newUser.roles || existingUser.roles
+userRepo.updateUser = function (updatedUser, existingUser) {
+    const fields = ['username', 'email', 'roles', 'password'];
+    fields.forEach(function (field, index) {
+        if (field in updatedUser) {
+            existingUser[field] = updatedUser[field];
         }
-    );
+    });
     return existingUser.save();
 };
 

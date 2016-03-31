@@ -73,10 +73,12 @@ const authenticate = function (req, res, next) {
 
         sendResponseIfTokenRelatedError(user, info, res);
 
-        req.bookSharing = req.bookSharing || {};
-        req.bookSharing.authenticatedUserToken = info.token;
-        req.bookSharing.currentAuthenticatedUser = user;
-        next();
+        if(user) {
+            req.bookSharing = req.bookSharing || {};
+            req.bookSharing.authenticatedUserToken = info.token;
+            req.bookSharing.currentAuthenticatedUser = user;
+            next();
+        }
 
     })(req, res, next);
 
