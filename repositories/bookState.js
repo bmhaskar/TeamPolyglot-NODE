@@ -13,11 +13,24 @@ bookStateRepo.createBookState= function(userId, bookId) {
 };
 
 bookStateRepo.findByBookId = function(bookId) {
-    return BookState.findOne({book: bookId}).populate('book uploadedBy lentBy returnedBy requestedBy lostBy').exec();
+    return BookState.findOne({book: bookId})
+      .populate('uploadedBy lentBy returnedBy requestedBy lostBy')
+      .populate({
+        path: 'book',
+        populate: { path: 'authors' }
+      })
+      .exec();
 };
 
 bookStateRepo.findById = function(bookStateId) {
-  return BookState.findOne({id: bookStateId}).populate('book uploadedBy lentBy returnedBy requestedBy lostBy').exec();
+  return BookState.findOne({_id: bookStateId})
+    .populate('uploadedBy lentBy returnedBy requestedBy lostBy book.authors')
+    .populate({
+      path: 'book',
+      populate: { path: 'authors' }
+    })
+    .exec();
+
 };
 
 bookStateRepo.updateBookState = function(updatedBookState) {

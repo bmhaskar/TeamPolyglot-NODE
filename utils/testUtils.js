@@ -101,6 +101,8 @@ testUtils.getToken = function (app, cb) {
         
         if(err) throw err;
 
+        testUtils.currentUser = result.body.data;
+
         testUtils.loginUser(app, function(loginError, loginResult) {
 
             if(loginError) throw loginError;

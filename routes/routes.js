@@ -34,7 +34,7 @@ routes.route('/book/:id')
     .put(bookController.put)
     .delete(bookController.delete);
 
-routes.route('/book/status/:bookId').get(findBookStateByBookId, bookStateController.currentStateOfBook);
+routes.route('/book/status/:bookId').get(authenticateRequest, findBookStateByBookId, bookStateController.currentStateOfBook);
 
 routes.route('/book/request/:bookId').put(authenticateRequest, findBookStateByBookId, bookWorkflowController.requestBook);
 routes.route('/book/request/approve/:bookId/:userId').put(authenticateRequest, findBookStateByBookId, findUserById, bookWorkflowController.approveBookRequest);
