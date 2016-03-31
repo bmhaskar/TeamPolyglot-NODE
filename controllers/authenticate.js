@@ -146,12 +146,14 @@ exports.login = function (req, res, next) {
  */
 exports.logout = function (req, res) {
     const token = req.bookSharing.authenticatedUserToken;
-
     tokenBlackListRepo.backlistToken(token, true).then(function (token) {
-        sendResponse(res, {message:  'Successfully logged out' , status: true}, 200);
-    }, function (err) {
-        sendResponse(res, {message:  'Internal server error. Could not logout.' , status: false}, 500);
-    });
+            sendResponse(res, {message:  'Successfully logged out' , status: true}, 200);
+        })
+        .catch(
+            function (err) {
+                sendResponse(res, {message:  'Internal server error. Could not logout.' , status: false}, 500);
+            }
+        )
 };
 
 /**

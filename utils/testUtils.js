@@ -26,6 +26,28 @@ testUtils.user = {
     ]
 };
 
+testUtils.book = {
+    "name": "Mastering NodeJS",
+    "authors": [
+        {
+            "name": "Sandro Pasquali"
+        }
+    ],
+    "publisher": {
+        "name": "Packt Publishing Ltd.",
+        "address": {
+            "street1": "Livery Place",
+            "street2": "35 Livery Street",
+            "country": "UK",
+            "city": "Birmingham",
+            "zip": "B3 2PB"
+        }
+    },
+    "isbn13": "978-1-78216-632-0",
+    "publishedOn": "2016-03-21T11:11:37.820Z"
+};
+
+
 testUtils.createUser = function (app, cb, user, status) {
     status = status || 200;
     request(app)
@@ -38,6 +60,18 @@ testUtils.createUser = function (app, cb, user, status) {
         .end(cb);
 };
 
+testUtils.createBook = function (app, cb, book, token, status) {
+    status = status || 200;
+    request(app)
+        .post('/api/book')
+        .send(book)
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end(cb);
+}
+
 testUtils.loginUser = function (app, cb, user, status) {
     status = status || 200;
     request(app)
@@ -45,6 +79,18 @@ testUtils.loginUser = function (app, cb, user, status) {
         .send(user)
         .set('Accept', 'application/json')
         .set('Content-Type', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(status)
+        .end(cb);
+};
+
+testUtils.logOutUser = function (app, cb, token, status ) {
+    status = status || 200;
+    request(app)
+        .post('/api/authenticate/logout')
+        .set('Accept', 'application/json')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', 'Bearer ' + token)
         .expect('Content-Type', /json/)
         .expect(status)
         .end(cb);

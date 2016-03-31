@@ -17,7 +17,7 @@ module.exports = function(req, res, next) {
         req.bookSharing.book = doc;
 
         next();
-    },function(err){
+    }).catch(function(err){
         sendResponse(res, {messgae: 'Could not fetch book', status: false, error: err}, 500);
     });
 

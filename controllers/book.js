@@ -451,8 +451,8 @@ exports.put = function (req, res) {
 exports.delete = function (req, res) {
     const book = req.bookSharing.book;
     bookRepo.deleteBook(book._id).then(function (deletedBook) {
-        sendResponse(res, {'message': 'Deleted Book', status: true, data: deletedBook}, 200);
-    }, function (err) {
+        return sendResponse(res, {'message': 'Deleted Book', status: true, data: deletedBook}, 200);
+    }).catch( function (err) {
         sendResponse(res, {'message': 'Could not delete book.', status: false, error: err}, 500);
     });
 };
