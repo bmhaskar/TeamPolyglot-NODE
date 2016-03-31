@@ -83,8 +83,16 @@ const config = {
     },
     eventHandlers: [
       path.resolve(__dirname,'..', 'eventHandlers', 'book','book.js')
-    ]
-
+    ],
+    mailgun: {
+        apiKey: 'key-1b62c1396f746a7d58e409c3df7606e4',
+        domain: 'sandbox872768a97ba449159c7a23fecd606b3b.mailgun.org'
+    },
+    fromEmail:"bharat.mhaskar@telentica.com",
+    templates: {
+        forgotPassword: path.resolve(__dirname,'..', 'emailTemplates', 'forgotPassword.html'),
+        resetPassword: path.resolve(__dirname,'..', 'emailTemplates', 'resetPassword.html')
+    }
 };
 
 module.exports = config;

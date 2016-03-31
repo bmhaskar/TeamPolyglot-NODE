@@ -21,6 +21,9 @@ const findBookStateByBookId = require('../middlewares/findBookState/findBookStat
 routes.route('/authenticate/login').post(authenticationController.login);
 routes.route('/authenticate/revoke-token/:token').post(authenticateRequest,authenticationController.revokeToken);
 routes.route('/authenticate/logout').post(authenticateRequest,authenticationController.logout);
+routes.route('/authenticate/forgot-password/:username').post(findUserByName,authenticationController.forgotPassword);
+routes.route('/authenticate/reset-password/:token').get(authenticationController.resetPassword);
+
 
 
 routes.route('/books').get(authenticateRequest, bookController.getBooks);

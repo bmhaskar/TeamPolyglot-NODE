@@ -1,20 +1,55 @@
 'use strict';
 const jwt = require('jsonwebtoken');
-const localAuthenticationStrategy = require('../authenticationStrategies/localStrategy');
+const swig = require('swig');
+const uuid = require('uuid');
+
 const config = require('../config/config');
+
+const localAuthenticationStrategy = require('../authenticationStrategies/localStrategy');
 const sendResponse = require('../utils/sendResponse');
+const mailer = require('../utils/mailer');
+const renderer = require('../utils/renderer');
+
 const tokenBlackListRepo = require('../repositories/tokenBlackList');
+const userRepo = require('../repositories/user');
+
 
 const handleJwtVerificationError = function (err, res) {
-    if(err && err.name == 'TokenExpiredError') {
-        sendResponse(res, {message:  'Token expired' , status: false}, 400);
-    } else if(err && err.name == 'JsonWebTokenError') {
-        sendResponse(res, {message:  'Invalid expired' , status: false}, 400);
-    } else if(err) {
-        sendResponse(res, {message:  'Token verification error' , status: false}, 500);
+    if (err && err.name == 'TokenExpiredError') {
+        sendResponse(res, {message: 'Token expired', status: false}, 400);
+    } else if (err && err.name == 'JsonWebTokenError') {
+        sendResponse(res, {message: 'Invalid token', status: false}, 400);
+    } else if (err) {
+        sendResponse(res, {message: 'Token verification error', status: false}, 500);
     }
 };
 
+const updateUserPasswordWithRandomValue = function (userId) {
+    return userRepo.findById(userId)
+        .then(function (user) {
+            const updatedUser = {password: uuid.v4()};
+            return userRepo.updateUser(updatedUser, user)
+                .then(function () {
+                    return Object.assign(user, {password: updatedUser.password})
+                });
+        })
+};
+
+
+const rendernewPasswordEmail = function (updatedUser) {
+    return renderer.render(config.templates.resetPassword, updatedUser)
+        .then(function (emailContent) {
+            return {emailContent: emailContent, updatedUser: updatedUser};
+        });
+};
+
+const sendNewPasswordEmail = function (emailInfo) {
+    return mailer.send({
+        subject: 'Your new password' + config.api.title,
+        to: emailInfo.updatedUser.email,
+        html: emailInfo.emailContent
+    })
+};
 /**
  * @swagger
  * /authenticate/login:
@@ -76,17 +111,17 @@ const handleJwtVerificationError = function (err, res) {
  */
 exports.login = function (req, res, next) {
 
-    localAuthenticationStrategy.authenticate('local', function(err, user, info) {
+    localAuthenticationStrategy.authenticate('local', function (err, user, info) {
 
         if (err) {
-            sendResponse(res, {message: 'Internal server error',  status: false}, 500);
+            sendResponse(res, {message: 'Internal server error', status: false}, 500);
         }
 
         if (!user) {
-            sendResponse(res, {message: info.message,  status: false}, info.statusCode);
+            sendResponse(res, {message: info.message, status: false}, info.statusCode);
         }
         //user has authenticated correctly thus we create a JWT token
-        jwt.sign({ userId: user._id}, config.token.secret, {
+        jwt.sign({userId: user._id}, config.token.secret, {
             issuer: config.host,
             expiresIn: config.token.expiresIn
         }, function (token) {
@@ -147,11 +182,11 @@ exports.login = function (req, res, next) {
 exports.logout = function (req, res) {
     const token = req.bookSharing.authenticatedUserToken;
     tokenBlackListRepo.backlistToken(token, true).then(function (token) {
-            sendResponse(res, {message:  'Successfully logged out' , status: true}, 200);
+            sendResponse(res, {message: 'Successfully logged out', status: true, data: ''}, 200);
         })
         .catch(
             function (err) {
-                sendResponse(res, {message:  'Internal server error. Could not logout.' , status: false}, 500);
+                sendResponse(res, {message: 'Internal server error. Could not logout.', status: false}, 500);
             }
         )
 };
@@ -222,12 +257,12 @@ exports.logout = function (req, res) {
 exports.revokeToken = function (req, res) {
     const token = req.params.token;
     jwt.verify(token, config.token.secret, function (err, decoded) {
-        if(err) handleJwtVerificationError(err, res);
+        if (err) handleJwtVerificationError(err, res);
 
         tokenBlackListRepo.backlistToken(token).then(function (token) {
-            sendResponse(res, {message:  'Successfully revoked token' , status: true}, 200);
-        }, function (err) {
-            sendResponse(res, {message:  'Internal server error. Could not revoke token.' , status: false}, 500);
+            sendResponse(res, {message: 'Successfully revoked token', status: true, data: ''}, 200);
+        }).catch(function (err) {
+            sendResponse(res, {message: 'Internal server error. Could not revoke token.', status: false}, 500);
         });
     });
 };
@@ -282,7 +317,36 @@ exports.revokeToken = function (req, res) {
  */
 exports.forgotPassword = function (req, res) {
 
+    const user = req.bookSharing.user;
+    const token = jwt.sign({userId: user._id}, config.token.secret, {
+        issuer: config.host,
+        expiresIn: config.token.expiresIn
+    });
+
+    const resetPasswordUrl = 'http://' + config.host + ':' + config.port + '/api/authenticate/reset-password/' + token;
+
+    renderer.render(config.templates.forgotPassword, {resetUrl: resetPasswordUrl, username: user.username})
+        .then(function (emailContent) {
+            mailer.send({
+                    subject: 'Password reset link for ' + config.api.title,
+                    to: user.email,
+                    html: emailContent
+                })
+                .then(function (mailInfo) {
+                    sendResponse(res, {message: 'Password reset email sent', status: false, data: ''}, 200);
+                })
+                .catch(function (err) {
+                    sendResponse(res, {
+                        message: 'Internal server error. Could not send reset password email',
+                        status: false
+                    }, 500);
+                });
+        })
+        .catch(function (err) {
+            sendResponse(res, {message: 'Internal server error. Could not render email content', status: false}, 500);
+        });
 };
+
 
 /**
  * @swagger
@@ -342,5 +406,37 @@ exports.forgotPassword = function (req, res) {
  *
  */
 exports.resetPassword = function (req, res) {
+    const token = req.params.token;
+    jwt.verify(token, config.token.secret, function (err, decoded) {
+        if (err) handleJwtVerificationError(err, res);
 
+        updateUserPasswordWithRandomValue(decoded.userId)
+            .then(null, function (err) {
+                sendResponse(res, {
+                    message: 'Internal server error. Could not update user password.',
+                    status: false
+                }, 500);
+            }).then(function (updatedUser) {
+                return rendernewPasswordEmail(updatedUser)
+                    .then(null, function (err) {
+                        sendResponse(res, {
+                            message: 'Internal server error. Could not render new password email.',
+                            status: false
+                        }, 500);
+                    });
+                }
+            ).then(function (emailInfo) {
+            return sendNewPasswordEmail(emailInfo)
+                .then(null, function (err) {
+                    sendResponse(res, {
+                        message: 'Internal server error. Could not send new password email',
+                        status: false
+                    }, 500);
+                });
+            }).then(function (mailInfo) {
+                sendResponse(res, {message: 'New password email sent.', status: false, data: ''}, 200);
+            });
+    });
 };
+
+
