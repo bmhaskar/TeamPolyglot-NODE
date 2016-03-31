@@ -97,6 +97,7 @@ describe('Book api', function () {
             .post('/api/book')
             .send(book)
             .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer ' + token)
             .expect('Content-Type', /json/)
             .expect(200)
             .end(function (err, result) {

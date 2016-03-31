@@ -50,6 +50,18 @@ testUtils.loginUser = function (app, cb, user, status) {
         .end(cb);
 };
 
+testUtils.logOutUser = function (app, cb, status) {    
+    status = status || 200;
+    request(app)
+        .post('/api/authenticate/logout')
+        .set('Accept', 'application/json')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', 'Bearer ' + testUtils.token)
+        .expect('Content-Type', /json/)
+        .expect(status)
+        .end(cb);
+};
+
 testUtils.getToken = function (app, cb) {
     testUtils.createUser(app, function(err, result) {
         
