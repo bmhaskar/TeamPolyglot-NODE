@@ -10,26 +10,7 @@ let app = {};
 
 describe('Book api', function () {
     let token = "";
-    let book = {
-        "name": "Mastering NodeJS",
-        "authors": [
-            {
-                "name": "Sandro Pasquali"
-            }
-        ],
-        "publisher": {
-            "name": "Packt Publishing Ltd.",
-            "address": {
-                "street1": "Livery Place",
-                "street2": "35 Livery Street",
-                "country": "UK",
-                "city": "Birmingham",
-                "zip": "B3 2PB"
-            }
-        },
-        "isbn13": "978-1-78216-632-0",
-        "publishedOn": "2016-03-21T11:11:37.820Z"
-    };
+
 
     let savedBook = {}, updatedBook = {};
     const assertProperBook = function (actual, expected) {
@@ -93,20 +74,13 @@ describe('Book api', function () {
     });
 
     it('Saves a book', function (done) {
-        request(app)
-            .post('/api/book')
-            .send(book)
-            .set('Accept', 'application/json')
-            .set('Authorization', 'Bearer ' + token)
-            .expect('Content-Type', /json/)
-            .expect(200)
-            .end(function (err, result) {
+           testUtils.createBook(app, function(err, result) {
                 if (err) throw  err;
                 testUtils.assertBasicSucessMessage(result.body);
-                assertProperBook(result.body.data, book);
+                assertProperBook(result.body.data, testUtils.book);
                 savedBook = result.body.data;
                 done();
-            })
+            }, testUtils.book, token);
     });
 
     it('Responses with list of books', function (done) {
@@ -124,7 +98,7 @@ describe('Book api', function () {
                 assert(Array.isArray(result.body.data.docs), 'Asserting response has docs as array');
                 assert(result.body.data.docs.length, 'Asserting response has docs as filled array');
 
-                assertProperBook(result.body.data.docs[0], book);
+                assertProperBook(result.body.data.docs[0], savedBook);
                 done();
             })
     });
@@ -134,7 +108,7 @@ describe('Book api', function () {
             if (err) throw  err;
 
             testUtils.assertBasicSucessMessage(result.body);
-            assert(result.body.data._id, book._id);
+            assert(result.body.data._id, savedBook._id);
             assertProperBook(result.body.data, savedBook);
 
             done();
@@ -195,7 +169,7 @@ describe('Book api', function () {
                 if (err) throw err;
 
                 testUtils.assertBasicSucessMessage(result.body);
-                assert(result.body.data._id, book._id);
+                assert(result.body.data._id, savedBook._id);
 
                 findBookById(function (err, result) {
                     if (err) throw  err;
