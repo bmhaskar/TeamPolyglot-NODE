@@ -2,7 +2,29 @@
 
 const sendResponse = require('../utils/sendResponse');
 const bookStateRepo = require('../repositories/bookState');
+const bookStateUtil = require('../utils/bookStateUtil');
+const userRepo = require('../repositories/user');
 
+const updateBookState = function (updatedBookState, bookState, res, sucessMesage, errorMessage) {
+    return bookStateRepo.updateBookState(updatedBookState, bookState)
+        .then(function (updatedBookState) {
+            return bookStateRepo.findById(updatedBookState._id)
+                .then(null, function (err) {
+                    sendResponse(res, {
+                        'message': 'Internal server error. Could not find updated book state',
+                        status: false
+                    }, 500);
+                });
+
+        }).then(function (foundBookState) {
+            sendResponse(res, {'message': sucessMesage, status: true, data: foundBookState}, 200);
+        }).catch(function (err) {
+            sendResponse(res, {
+                'message':  errorMessage ,
+                status: false
+            }, 500);
+        });
+};
 /**
  * @swagger
  * /book/request/{bookId}:
@@ -63,37 +85,24 @@ const bookStateRepo = require('../repositories/bookState');
  *
  */
 exports.requestBook = function (req, res) {
-  const bookState = req.bookSharing.bookState;
-  const currentUser = req.bookSharing.currentAuthenticatedUser;
+    const bookState = req.bookSharing.bookState;
+    const user = req.bookSharing.currentAuthenticatedUser;
 
-  if(bookState.requestedBy) {
-    const foundRequestedUser = bookState.requestedBy.find((user) => {
-      return user._id.toString() == currentUser._id.toString()
-    });
 
-    if (foundRequestedUser) {
-      return sendResponse(res, {
-        'message': 'Book request exists',
-        status: false
-      }, 400);
-    }
+    bookStateUtil.isRequestedByUser(bookState, user)
+        .then(function (requestedByInfo) {            
+            sendResponse(res, {'message': 'Book request exists', status: false}, 400);
+        })
+        .then(null, function (err) {
+            let updatedBookState = Object.assign({}, bookState);
+            updatedBookState.requestedBy.push(user._id);
+            updateBookState(updatedBookState, bookState, res, 'Book request created',
+                'Internal server error. Could not create book request'
+            );
 
-  } else {
-    bookState.requestedBy = [];
-  }
+        });
 
-  bookState.requestedBy.push(currentUser._id);
 
-  bookStateRepo.updateBookState(bookState).then(function(updatedBookState) {
-    return bookStateRepo.findById(updatedBookState._id).then(function(foundBookState){
-      sendResponse(res, {'message': 'Book request created', status: true, data: foundBookState}, 200);
-    }).catch(function(err) {
-      sendResponse(res, {'message': 'Internal server error. Could not find updated book state', status: false}, 500);
-    });
-
-  }).catch(function(err) {
-    sendResponse(res, {'message': 'Internal server error. Could not create book request', status: false}, 500);
-  });
 };
 
 /**
@@ -161,7 +170,17 @@ exports.requestBook = function (req, res) {
  *
  */
 exports.approveBookRequest = function (req, res) {
+    const bookState = req.bookSharing.bookState;
+    const user = req.bookSharing.user;
+    const index = req.bookSharing.requestedByUserIndex;
 
+    let updatedBookState = Object.assign({}, bookState);
+    updatedBookState.requestedBy.splice(index, 1);
+    updatedBookState.currentStatus = 'Not available';
+    updatedBookState.borrowedBy = user;
+
+    updateBookState(updatedBookState, bookState, res ,'Book request approved',
+        'Internal server error. Could not approve book request');
 }
 
 /**
@@ -229,7 +248,16 @@ exports.approveBookRequest = function (req, res) {
  *
  */
 exports.rejectBookRequest = function (req, res) {
-}
+    const bookState = req.bookSharing.bookState;
+    const user = req.bookSharing.user;
+    const index = req.bookSharing.requestedByUserIndex;
+
+    let updatedBookState = Object.assign({}, bookState);
+    updatedBookState.requestedBy.splice(index, 1);
+
+    updateBookState(updatedBookState, bookState, res, 'Book request rejected',
+        'Internal server error. Could not reject book request');
+};
 
 
 /**
@@ -297,12 +325,24 @@ exports.rejectBookRequest = function (req, res) {
  *
  */
 exports.markBookAsReturned = function (req, res) {
+    const bookState = req.bookSharing.bookState;
+    const user = req.bookSharing.user;
+    const index = req.bookSharing.requestedByUserIndex;
+
+    let updatedBookState = Object.assign({}, bookState);
+    updatedBookState.borrowedBy = null;
+    updatedBookState.lostBy = null;
+    updatedBookState.returnedBy = user;
+    updatedBookState.currentStatus = 'Available';
+
+    updateBookState(updatedBookState, bookState, res, 'Book marked as returned',
+        'Internal server error. Could not mark book as returned');
 };
 
 
 /**
  * @swagger
- * /book/lost/{bookId}/{userId}:
+ * /book/lost/{bookId}:
  *   put:
  *     operationId: markBookAsLost
  *     description: Mark borrowed book as lost
@@ -316,8 +356,8 @@ exports.markBookAsReturned = function (req, res) {
  *        description: The id of book which is returned
  *        type: string
  *      - name: userId
- *        in: path
- *        required: true
+ *        in: query
+ *        required: false
  *        description: 'The id of user who had borrowed the book.
  *        If not provided, the recent borrower will be used as default.'
  *        type: string
@@ -366,4 +406,36 @@ exports.markBookAsReturned = function (req, res) {
  *
  */
 exports.markBookAsLost = function (req, res) {
+    const bookState = req.bookSharing.bookState;
+    const userId = req.query.userId;
+    let user = bookState.borrowedBy;
+
+    const markLost = function (bookState, res, user) {
+        let updatedBookState = Object.assign({}, bookState);
+        updatedBookState.lostBy = user;
+        updatedBookState.returnedBy = user;
+        updatedBookState.currentStatus = 'Lost';
+        updateBookState(updatedBookState, bookState, res, 'Book marked as lost',
+            'Internal server error. Could not mark book as lost');
+    };
+
+    if(userId) {
+        userRepo.findById(userId)
+            .then(null, function (err) {
+                throw {message: 'Internal server error Could not fetch user', status: false, code: 500};
+            })
+            .then(function (foundUser) {
+                if (!foundUser) {
+                    throw {message:'Could not find user with id: ' + userId, code:  404};
+                }
+                user = foundUser;
+                markLost(bookState, res, user);
+            }).catch(function (err) {
+                sendResponse(res, {message: err.message, status: false, error: err}, err.code);
+            });
+
+    } else {
+        markLost(bookState, res, user);
+    };
+
 };

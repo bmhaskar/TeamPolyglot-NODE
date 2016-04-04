@@ -66,6 +66,7 @@ describe('Book Request api', function () {
             .expect('Content-Type', /json/)
             .expect(200)
             .end(function (err, result) {
+
                 if (err) throw  err;
                 testUtils.assertBasicSucessMessage(result.body);
                 assert.deepStrictEqual(result.body.data.book, savedBook,
@@ -82,6 +83,7 @@ describe('Book Request api', function () {
         updatedBookState.book = savedBook;
         updatedBookState.requestedBy.push(currentUser);
         requestBook(app, function (err, result) {
+            
             if (err) throw  err;
             testUtils.assertBasicSucessMessage(result.body);
 

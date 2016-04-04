@@ -16,7 +16,7 @@ module.exports = function (req, res, next) {
 
     userRepo.findByName(userName)
         .then(null, function (err) {
-            sendResponse(res, {message: 'Internal server error Could not fetch user', status: false, error: err}, 500);
+            throw {message: 'Internal server error Could not fetch user', code: 500};
         })
         .then(function (foundUser) {
             if (!foundUser) {
@@ -26,7 +26,7 @@ module.exports = function (req, res, next) {
             req.bookSharing.user = foundUser;
             next();
 
-        }).then(null, function (err) {
+        }).catch(function (err) {
         sendResponse(res, {message: err.message, status: false, error: err}, err.code);
     });
 
