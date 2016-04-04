@@ -6,12 +6,12 @@ const bookStateRepo = require('../../repositories/bookState');
 module.exports = function(req, res, next) {    
     const bookId  = req.params.bookId;
     if(!bookId) {
-        sendResponse(res, {messgae: 'Invalid id.', status: false}, 400);
+        sendResponse(res, {message: 'Invalid id.', status: false}, 400);
     }
 
     bookStateRepo.findByBookId(bookId).then(function(doc){
         if(!doc) {
-            sendResponse(res, {messgae: 'Could not find book status with book id: ' + bookId, status: false}, 404);
+            sendResponse(res, {message: 'Could not find book status with book id: ' + bookId, status: false}, 404);
         } else {
             req.bookSharing = req.bookSharing || {};
             req.bookSharing.bookState = doc;
@@ -19,7 +19,7 @@ module.exports = function(req, res, next) {
             next();
         }
     },function(err){
-        sendResponse(res, {messgae: 'Could not fetch book state', status: false, error: err}, 500);
+        sendResponse(res, {message: 'Could not fetch book state', status: false, error: err}, 500);
     });
 
 };

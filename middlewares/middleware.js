@@ -32,6 +32,7 @@ middleware.use(function(req, res) {
 });
 middleware.use(logger.errorLogger);
 middleware.use(function(err, req, res, next) {
+    console.log(err);
     res.status(500).send({'message': 'Internal server error.', status: false});
 });
 

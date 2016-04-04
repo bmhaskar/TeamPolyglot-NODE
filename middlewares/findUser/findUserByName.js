@@ -7,18 +7,27 @@ const userRepo = require('../../repositories/user');
 
 module.exports = function (req, res, next) {
 
-    const username = req.params.username;
+    const userName = req.params.username;
 
-    userRepo.findByName(username).then(function (doc) {
-        if (!doc) {
-            sendResponse(res, {messgae: 'Could not find user with name: ' + username, status: false}, 404);
-        } else {
 
+    if (!userName) {
+        return sendResponse(res, {message: 'Invalid input username', status: false}, 400);
+    }
+
+    userRepo.findByName(userName)
+        .then(null, function (err) {
+            sendResponse(res, {message: 'Internal server error Could not fetch user', status: false, error: err}, 500);
+        })
+        .then(function (foundUser) {
+            if (!foundUser) {
+                throw {message: 'Could not find user with username: ' + userName, code: 404};
+            }
             req.bookSharing = req.bookSharing || {};
-            req.bookSharing.user = doc;
+            req.bookSharing.user = foundUser;
             next();
-        }
-    }, function (err) {
-        sendResponse(res, {messgae: 'Could not fetch error', status: false, error: err}, 500);
+
+        }).then(null, function (err) {
+        sendResponse(res, {message: err.message, status: false, error: err}, err.code);
     });
+
 };

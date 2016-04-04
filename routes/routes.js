@@ -28,13 +28,13 @@ routes.route('/authenticate/reset-password/:token').get(authenticationController
 
 routes.route('/books').get(authenticateRequest, bookController.getBooks);
 routes.route('/book').post(authenticateRequest, bookController.post);
-routes.route('/book/:id')
-    .all(findBookById)
+routes.route('/book/:bookId')
+    .all(findBookById, authenticateRequest)
     .get(bookController.getBookById)
     .put(bookController.put)
     .delete(bookController.delete);
 
-routes.route('/book/status/:bookId').get(findBookStateByBookId, bookStateController.currentStateOfBook);
+routes.route('/book/status/:bookId').get(authenticateRequest, findBookStateByBookId, bookStateController.currentStateOfBook);
 
 routes.route('/book/request/:bookId').put(authenticateRequest, findBookStateByBookId, bookWorkflowController.requestBook);
 routes.route('/book/request/approve/:bookId/:userId').put(authenticateRequest, findBookStateByBookId, findUserById, bookWorkflowController.approveBookRequest);
@@ -45,13 +45,13 @@ routes.route('/book/return/:bookId/:userId').put(authenticateRequest, findBookSt
 
 routes.route('/users').get(userController.getUsers);
 routes.route('/user').post(userController.post);
-routes.route('/user/id/:id([a-zA-Z0-9]{24})')
-    .all(findUserById)
+routes.route('/user/id/:userId([a-zA-Z0-9]{24})')
+    .all(authenticateRequest, findUserById)
     .get(userController.getUser)
     .put(userController.putForId)
     .delete(userController.deleteById);
 routes.route('/user/username/:username')
-    .all(findUserByName)
+    .all(authenticateRequest, findUserByName)
     .get(userController.getUserByName)
     .put(userController.putForName)
     .delete(userController.deleteByName);

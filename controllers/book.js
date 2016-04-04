@@ -142,12 +142,12 @@ exports.getBooks = function (req, res) {
 
     bookRepo.findBooks(limit, page).then(function (result) {
         if (!result.docs.length) {
-            sendResponse(res, {messgae: 'Could not find books', status: false}, 404);
+            sendResponse(res, {message: 'Could not find books', status: false}, 404);
         } else {
             sendResponse(res, {message: 'Found books', data: result, status: true}, 200);
         }
     }, function (error) {
-        sendResponse(res, {messgae: 'Could not fetch books', status: false, error: error}, 500);
+        sendResponse(res, {message: 'Could not fetch books', status: false, error: error}, 500);
     });
 };
 
@@ -166,6 +166,11 @@ exports.getBooks = function (req, res) {
  *         required: true
  *         description: The id of book to be retrieved
  *         type: string
+ *       - name: 'Authorization'
+ *         in: header
+ *         type: string
+ *         required: true
+ *         description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *     responses:
  *       200:
  *         description: 'Book object'
@@ -319,6 +324,11 @@ exports.post = function (req, res) {
  *          schema:
  *            type: object
  *            $ref: '#/definitions/NewBook'
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      responses:
  *       200:
  *         description: 'Updated book object'
@@ -410,6 +420,11 @@ exports.put = function (req, res) {
  *          required: true
  *          description: 'Id of the book to be modified'
  *          type: string
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      responses:
  *       200:
  *         description: 'Deleted book object'

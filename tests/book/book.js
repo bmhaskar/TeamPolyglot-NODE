@@ -6,6 +6,7 @@ const request = require('supertest');
 const assert = require('assert');
 
 const testUtils = require('../../utils/testUtils');
+const databaseUtils = require('../../utils/database');
 let app = {};
 
 describe('Book api', function () {
@@ -32,28 +33,38 @@ describe('Book api', function () {
         assert.deepStrictEqual(actual.publisher.address, expected.publisher.address,
             'Asserting response object has correct publisher address');
     };
-    const findBookById = function (cb, book, status) {
-        request(app)
+    const findBookById = function (cb, book, token, status) {
+
+         status = status || 200;
+         request(app)
             .get('/api/book/' + book._id)
             .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer ' + token)
             .expect('Content-Type', /json/)
             .expect(status)
             .end(cb)
     };
-    before(function (done) {
+    before(function (done) {        
         testUtils.cleanDatabases(function () {
-            app = require('../../index');
-            testUtils.getToken(app, function (userToken) {
-                token = userToken;
-                done();
+            require('../../index').start().then(function (server) {
+                app = server;
+                testUtils.getToken(app, function (userToken) {
+                    token = userToken;
+                    done();
+                });
             });
-        })
+        });
     });
 
     after(function (done) {
-        testUtils.cleanDatabases(function () {
+        app.close(function () {
+            databaseUtils.disconnectDatabase();
+            app = {};
             done();
         });
+        // testUtils.cleanDatabases(function () {
+        //     done();
+        // });
     });
 
     it('Responses with not authorised', function (done) {
@@ -114,7 +125,7 @@ describe('Book api', function () {
 
             done();
 
-        }, savedBook, 200)
+        }, savedBook, token, 200)
     });
 
     it('Updates book with correct details', function (done) {
@@ -128,6 +139,7 @@ describe('Book api', function () {
             .put('/api/book/' + savedBook._id)
             .send(updatedBook)
             .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer ' + token)
             .expect('Content-Type', /json/)
             .expect(200)
             .end(function (err, result) {
@@ -149,6 +161,7 @@ describe('Book api', function () {
             .put('/api/book/' + savedBook._id)
             .send(updatedBook)
             .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer ' + token)
             .expect('Content-Type', /json/)
             .expect(200)
             .end(function (err, result) {
@@ -164,18 +177,17 @@ describe('Book api', function () {
         request(app)
             .delete('/api/book/' + savedBook._id)
             .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer ' + token)
             .expect('Content-Type', /json/)
             .expect(200)
             .end(function (err, result) {
                 if (err) throw err;
-
                 testUtils.assertBasicSucessMessage(result.body);
                 assert(result.body.data._id, savedBook._id);
-
                 findBookById(function (err, result) {
                     if (err) throw  err;
                     done();
-                }, savedBook, 404)
+                }, savedBook, token, 404)
             });
     });
 

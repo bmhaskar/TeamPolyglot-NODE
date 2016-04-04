@@ -81,17 +81,17 @@ exports.requestBook = function (req, res) {
   } else {
     bookState.requestedBy = [];
   }
-  console.log('Should not be called');
+
   bookState.requestedBy.push(currentUser._id);
 
   bookStateRepo.updateBookState(bookState).then(function(updatedBookState) {
-    bookStateRepo.findById(updatedBookState._id).then(function(foundBookState){
+    return bookStateRepo.findById(updatedBookState._id).then(function(foundBookState){
       sendResponse(res, {'message': 'Book request created', status: true, data: foundBookState}, 200);
-    }, function(err) {
+    }).catch(function(err) {
       sendResponse(res, {'message': 'Internal server error. Could not find updated book state', status: false}, 500);
     });
 
-  }, function(err) {
+  }).catch(function(err) {
     sendResponse(res, {'message': 'Internal server error. Could not create book request', status: false}, 500);
   });
 };
