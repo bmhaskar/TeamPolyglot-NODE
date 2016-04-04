@@ -114,19 +114,22 @@ exports.login = function (req, res, next) {
     localAuthenticationStrategy.authenticate('local', function (err, user, info) {
 
         if (err) {
-            sendResponse(res, {message: 'Internal server error', status: false}, 500);
+            return sendResponse(res, {message: 'Internal server error', status: false}, 500);
         }
 
         if (!user) {
-            sendResponse(res, {message: info.message, status: false}, info.statusCode);
+            return sendResponse(res, {message: info.message, status: false}, info.statusCode);
         }
+
+
+
         //user has authenticated correctly thus we create a JWT token
-        jwt.sign({userId: user._id}, config.token.secret, {
+        const token = jwt.sign({userId: user._id}, config.token.secret, {
             issuer: config.host,
             expiresIn: config.token.expiresIn
-        }, function (token) {
-            sendResponse(res, {message: 'Login successful', data: token, status: true}, 200);
         });
+
+        return sendResponse(res, {message: 'Login successful', data: token, status: true}, 200);
 
     })(req, res, next);
 };

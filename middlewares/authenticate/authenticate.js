@@ -62,7 +62,6 @@ const sendResponseIfTokenRelatedError = function (user, info, res) {
 const authenticate = function (req, res, next) {
 
     bearerAuthenticationStrategy.authenticate('bearer', function (err, user, info) {
-
         sendResponseIfInternalError(err, res);
 
         sendResponseIfHeaderValueIsMissing(user, info, res);

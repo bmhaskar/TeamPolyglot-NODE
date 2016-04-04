@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 
 const config = require('../config/config');
+const database = require('./database/database');
 const apiDocumentation = require('./documentation/apiDocumentation');
 const logger = require('./logger/logger');
 const routes = require('../routes/routes');
@@ -20,6 +21,7 @@ const middleware = express();
 middleware.use(bodyParser.json());
 middleware.use(bodyParser.urlencoded({extended: true}));
 middleware.use(logger.genericLogger);
+middleware.use(database);
 middleware.use(passport.initialize());
 middleware.use(apiDocumentation);
 
@@ -32,6 +34,7 @@ middleware.use(function(req, res) {
 });
 middleware.use(logger.errorLogger);
 middleware.use(function(err, req, res, next) {
+    console.log(err);
     res.status(500).send({'message': 'Internal server error.', status: false});
 });
 

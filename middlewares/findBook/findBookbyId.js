@@ -4,22 +4,28 @@ const sendResponse = require('../../utils/sendResponse');
 const bookRepo = require('../../repositories/book');
 
 module.exports = function(req, res, next) {
-    const bookId  = req.params.id;
+    const bookId  = req.params.bookId;
+
     if(!bookId) {
-        sendResponse(res, {messgae: 'Invalid id.', status: false}, 400);
+        return sendResponse(res, {message: 'Invalid id.', status: false}, 400);
     }
+    bookRepo.findById(bookId)
+        .then(null,function(err){
+            sendResponse(res, {message: 'Could not fetch book', status: false, error: err}, 500);
+        })
+        .then(function(doc){
+            if(!doc)  {
+                throw {message: 'Could not find book with id: ' + bookId, code:  404};
+            }
 
-    bookRepo.findById(bookId).then(function(doc){
-        if(!doc) {
-            sendResponse(res, {messgae: 'Could not find book with id: ' + bookId, status: false}, 404);
-        }
-        req.bookSharing = req.bookSharing || {};
-        req.bookSharing.book = doc;
+            req.bookSharing = req.bookSharing || {};
+            req.bookSharing.book = doc;
 
-        next();
-    }).catch(function(err){
-        sendResponse(res, {messgae: 'Could not fetch book', status: false, error: err}, 500);
-    });
+            next();
+
+        }).then(null, function(err){
+            sendResponse(res, {message: err.message, status: false, error: err},  err.code);
+        });
 
 }
 
