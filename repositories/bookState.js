@@ -7,7 +7,7 @@ bookStateRepo.createBookState = function (userId, bookId) {
     const bookState = new BookState({
         book: bookId,
         uploadedBy: userId,
-        currentStatus: 'available'
+        currentStatus: 'Available'
     });
     return bookState.save();
 };
@@ -23,6 +23,7 @@ bookStateRepo.findByBookId = function (bookId) {
                 model: 'Author'
             }
         })
+        .lean()
         .exec();
 };
 
@@ -37,12 +38,13 @@ bookStateRepo.findById = function (bookStateId) {
                 model: 'Author'
             }
         })
+        .lean()
         .exec();
 
 };
 
-bookStateRepo.updateBookState = function (updatedBookState) {
-    return updatedBookState.save();
+bookStateRepo.updateBookState = function (updatedBookState, existingBookState) {
+    return BookState.findOneAndUpdate({_id: existingBookState._id} ,updatedBookState ,{new : true}).exec();
 };
 
 module.exports = bookStateRepo;

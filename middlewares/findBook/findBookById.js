@@ -11,19 +11,19 @@ module.exports = function(req, res, next) {
     }
     bookRepo.findById(bookId)
         .then(null,function(err){
-            sendResponse(res, {message: 'Could not fetch book', status: false, error: err}, 500);
+            throw {message: 'Could not fetch book', code: 500};
         })
-        .then(function(doc){
-            if(!doc)  {
+        .then(function(foundBook){
+            if(!foundBook)  {
                 throw {message: 'Could not find book with id: ' + bookId, code:  404};
             }
 
             req.bookSharing = req.bookSharing || {};
-            req.bookSharing.book = doc;
+            req.bookSharing.book = foundBook;
 
             next();
 
-        }).then(null, function(err){
+        }).catch(function(err){
             sendResponse(res, {message: err.message, status: false, error: err},  err.code);
         });
 

@@ -14,7 +14,7 @@ module.exports = function (req, res, next) {
 
     userRepo.findById(userId)
         .then(null, function (err) {
-            sendResponse(res, {message: 'Internal server error Could not fetch user', status: false, error: err}, 500);
+            throw {message: 'Internal server error Could not fetch user',  code:  500};
         })
         .then(function (foundUser) {
             if (!foundUser) {

@@ -273,7 +273,7 @@ exports.revokeToken = function (req, res) {
 /**
  * @swagger
  * /authenticate/forgot-password/{username}:
- *    get:
+ *    post:
  *      operationId: forgotPassword
  *      tags:
  *        - Authenticate

@@ -51,7 +51,7 @@ const bookStateSchema = new Schema({
     book: {type: Schema.Types.ObjectId, ref: 'Book', required: true, unique: true},
     currentStatus: {type: String}, //Possible values for this are available, not available, lost
     uploadedBy: {type: Schema.Types.ObjectId, ref: 'User'},
-    lentBy: {type: Schema.Types.ObjectId, ref: 'User'},
+    borrowedBy: {type: Schema.Types.ObjectId, ref: 'User'},
     returnedBy: {type: Schema.Types.ObjectId, ref: 'User'},
     requestedBy: [{type: Schema.Types.ObjectId, ref: 'User'}],
     lostBy: {type: Schema.Types.ObjectId, ref: 'User'}
