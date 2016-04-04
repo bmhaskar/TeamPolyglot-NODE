@@ -6,6 +6,7 @@ const request = require('supertest');
 const assert = require('assert');
 
 const testUtils = require('../../utils/testUtils');
+const databaseUtils = require('../../utils/database');
 let app = {};
 
 describe('Book api', function () {
@@ -45,19 +46,26 @@ describe('Book api', function () {
     };
     before(function (done) {        
         testUtils.cleanDatabases(function () {
-            app = require('../../index');
-            testUtils.getToken(app, function (userToken) {
-                token = userToken;
-                done();
+            require('../../index').start().then(function (server) {
+                app = server;
+                testUtils.getToken(app, function (userToken) {
+                    token = userToken;
+                    done();
+                });
             });
-        })
+        });
     });
 
-    // after(function (done) {
-    //     testUtils.cleanDatabases(function () {
-    //         done();
-    //     });
-    // });
+    after(function (done) {
+        app.close(function () {
+            databaseUtils.disconnectDatabase();
+            app = {};
+            done();
+        });
+        // testUtils.cleanDatabases(function () {
+        //     done();
+        // });
+    });
 
     it('Responses with not authorised', function (done) {
         request(app)

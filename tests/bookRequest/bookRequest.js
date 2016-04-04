@@ -10,6 +10,7 @@ const request = require('supertest');
 const assert = require('assert');
 
 const testUtils = require('../../utils/testUtils');
+const databaseUtils = require('../../utils/database');
 
 
 describe('Book Request api', function () {
@@ -30,26 +31,32 @@ describe('Book Request api', function () {
     }
     before(function (done) {
         testUtils.cleanDatabases(function () {
-            app = require('../../index');
-            testUtils.getToken(app, function (userToken) {
-                token = userToken;
+            require('../../index').start().then(function (server) {
+                app = server;
 
-                testUtils.createBook(app, function (err, result) {
-                    if (err) throw  err;
-                    savedBook = result.body.data;
-                    currentUser = testUtils.currentUser;
-                    done();
-                }, testUtils.book, token);
+                testUtils.getToken(app, function (userToken) {
+                    token = userToken;
 
+                    testUtils.createBook(app, function (err, result) {
+                        if (err) throw  err;
+                        savedBook = result.body.data;
+                        currentUser = testUtils.currentUser;
+                        done();
+                    }, testUtils.book, token);
+
+                });
             });
         });
     });
 
-    // after(function (done) {
-    //     testUtils.cleanDatabases(function () {
-    //         done();
-    //     });
-    // });
+
+    after(function (done) {
+        app.close(function () {
+            databaseUtils.disconnectDatabase();
+           app = {};
+            done();
+        });
+    });
 
 
     it('fetches book state', function (done) {

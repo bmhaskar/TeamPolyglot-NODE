@@ -6,6 +6,7 @@ const request = require('supertest');
 const assert = require('assert');
 
 const testUtils = require('../../utils/testUtils');
+const databaseUtils = require('../../utils/database');
 
 
 describe('User api', function () {
@@ -58,19 +59,24 @@ describe('User api', function () {
 
     before(function (done) {
         testUtils.cleanDatabases(function () {
-            app = require('../../index');
-            testUtils.getToken(app, function (userToken) {
-                token = userToken;
-                done();
-            });
-        })
+            require('../../index').start().then(function (server) {
+                app = server;
+                testUtils.getToken(app, function (userToken) {
+                    token = userToken;
+                    done();
+                });
+            })
+        });
     });
-    // after(function (done) {
-    //     testUtils.cleanDatabases(function () {
-    //         done();
-    //     });
-    // });
 
+
+    after(function (done) {
+        app.close(function () {
+            databaseUtils.disconnectDatabase();
+           app = {};
+            done();
+        });
+    });
 
 
     it('creates user', function (done) {
