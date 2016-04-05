@@ -92,6 +92,10 @@ const config = {
     templates: {
         forgotPassword: path.resolve(__dirname,'..', 'emailTemplates', 'forgotPassword.html'),
         resetPassword: path.resolve(__dirname,'..', 'emailTemplates', 'resetPassword.html')
+    },
+    elasticSearch: {
+        host: 'localhost:9200',
+        log: 'trace'
     }
 };
 
