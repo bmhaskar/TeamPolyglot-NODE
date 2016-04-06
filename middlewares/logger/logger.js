@@ -35,15 +35,7 @@ const accessLogFileTransport = new winston.transports.File({
 	});
 
 
-const dubugLogFileTransport = new winston.transports.File({
-			name: 'debug-log-file',      		
-      		level: 'debug',
-      		handleExceptions: true,
-            json: true,
-            colorize: false,
-      		datePattern: '.yyyy-MM-ddTHH.log',
-  			filename: path.join(config.logDir , "debug_log")
-	});
+
 
 //@todo: Find a better approach to separate logger's based on env
 let genericLogger = {}, errorLogger = {};
@@ -93,9 +85,3 @@ exports.errorLogger = expressWinston.errorLogger({
 		showStack: true
 	});
 
-exports.debugLogger =  new (winston.Logger)({
-	    transports: [
-	    	dubugLogFileTransport
-	    ],
-	    exitOnError: false
-	});
