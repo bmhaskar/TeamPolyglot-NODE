@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const elasticSearchMapping = require('./elasticSearchMapping');
 
 const config = {
     port: process.env.PORT || 3000,
@@ -88,7 +89,7 @@ const config = {
         apiKey: 'key-1b62c1396f746a7d58e409c3df7606e4',
         domain: 'sandbox872768a97ba449159c7a23fecd606b3b.mailgun.org'
     },
-    fromEmail:"bharat.mhaskar@telentica.com",
+    fromEmail:'bharat.mhaskar@telentica.com',
     templates: {
         forgotPassword: path.resolve(__dirname,'..', 'emailTemplates', 'forgotPassword.html'),
         resetPassword: path.resolve(__dirname,'..', 'emailTemplates', 'resetPassword.html')
@@ -96,7 +97,8 @@ const config = {
     elasticSearch: {
         host: 'localhost:9200',
         log: 'trace'
-    }
+    },
+    elasticSearchMapping: elasticSearchMapping
 };
 
 module.exports = config;

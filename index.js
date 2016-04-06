@@ -5,7 +5,9 @@ const express = require('express');
 
 const config = require('./config/config');
 const middleware = require('./middlewares/middleware');
-const databaseUtils = require('./utils/database');
+const databaseUtil = require('./utils/database');
+const indexerUtil = require('./utils/indexer');
+const logger = require('./middlewares/logger/logger');
 
 const app = express();
 let server = {};
@@ -37,12 +39,16 @@ const onServerError = function onError(error) {
 
 
 const start = function () {
-    return databaseUtils.connectDatabase().then(function () {
+    return databaseUtil.connectDatabase().then(indexerUtil.init).then(function () {
+        
         server = app.listen(config.port, config.host, function () {
             console.log('Book sharing application started at address: ' + server.address().address + ' port: ' + server.address().port);
         });
+
         return server.on('error', onServerError);
-    });
+    }).catch(function (err) {
+        logger.errorLogger.log('error', 'Could not start server', err);
+    })
 };
 
 if(config.env != 'test') {
