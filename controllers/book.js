@@ -23,9 +23,9 @@ const createAuthorsIfNotPresent = function (authors) {
         let foundAuthorPromise = {};
         if (author.email) {
             foundAuthorPromise = authorRepo.findByNameOrEmail(author.name, author.email)
-                .then(function (foundUser) {
-                    if (foundUser) {
-                        return Promise.resolve(foundUser);
+                .then(function (foundAuthor) {
+                    if (foundAuthor.length) {
+                        return Promise.resolve(foundAuthor);
                     } else {
                         return authorRepo.createAuthor(author)
                     }
@@ -142,12 +142,12 @@ exports.getBooks = function (req, res) {
 
     bookRepo.findBooks(limit, page).then(function (result) {
         if (!result.docs.length) {
-            sendResponse(res, {messgae: 'Could not find books', status: false}, 404);
+            sendResponse(res, {message: 'Could not find books', status: false}, 404);
         } else {
             sendResponse(res, {message: 'Found books', data: result, status: true}, 200);
         }
     }, function (error) {
-        sendResponse(res, {messgae: 'Could not fetch books', status: false, error: error}, 500);
+        sendResponse(res, {message: 'Could not fetch books', status: false, error: error}, 500);
     });
 };
 
@@ -166,6 +166,11 @@ exports.getBooks = function (req, res) {
  *         required: true
  *         description: The id of book to be retrieved
  *         type: string
+ *       - name: 'Authorization'
+ *         in: header
+ *         type: string
+ *         required: true
+ *         description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *     responses:
  *       200:
  *         description: 'Book object'
@@ -223,6 +228,11 @@ exports.getBookById = function (req, res) {
  *          description: 'Book object which needs to be added to the library'
  *          schema:
  *            $ref: '#/definitions/NewBook'
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - Book
  *      summary: Creates a book
@@ -262,7 +272,7 @@ exports.getBookById = function (req, res) {
  */
 exports.post = function (req, res) {
 
-    workflow.emitEvent("book_create_requested", req.body);
+    workflow.emitEvent("book_create_requested", { request: req.body, app: req.bookSharing});
 
     const authors = createAuthorsIfNotPresent(req.body.authors);
 
@@ -273,7 +283,7 @@ exports.post = function (req, res) {
 
             bookRepo.createBook(req.body).then(function (book) {
 
-                workflow.emitEvent("book_created", book);
+                workflow.emitEvent("book_created", {book: book, app: req.bookSharing});
 
                 bookRepo.findById(book._id).then(function (populatedBook) {
                         sendResponse(res, {'message': 'Book created', status: true, data: populatedBook}, 200);
@@ -314,6 +324,11 @@ exports.post = function (req, res) {
  *          schema:
  *            type: object
  *            $ref: '#/definitions/NewBook'
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      responses:
  *       200:
  *         description: 'Updated book object'
@@ -370,7 +385,7 @@ exports.put = function (req, res) {
         }, function (err) {
             sendResponse(res, {'message': 'Could not update book', status: false, error: err}, 500);
         }).end();
-    }
+    };
 
     if(req.body.authors) {
         const authors = createAuthorsIfNotPresent(req.body.authors);
@@ -388,7 +403,7 @@ exports.put = function (req, res) {
     } else {
         updateBook();
     }
-}
+};
 
 
 /**
@@ -405,6 +420,11 @@ exports.put = function (req, res) {
  *          required: true
  *          description: 'Id of the book to be modified'
  *          type: string
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      responses:
  *       200:
  *         description: 'Deleted book object'
@@ -446,8 +466,8 @@ exports.put = function (req, res) {
 exports.delete = function (req, res) {
     const book = req.bookSharing.book;
     bookRepo.deleteBook(book._id).then(function (deletedBook) {
-        sendResponse(res, {'message': 'Deleted Book', status: true, data: deletedBook}, 200);
-    }, function (err) {
+        return sendResponse(res, {'message': 'Deleted Book', status: true, data: deletedBook}, 200);
+    }).catch( function (err) {
         sendResponse(res, {'message': 'Could not delete book.', status: false, error: err}, 500);
     });
 };

@@ -11,6 +11,9 @@ const routes = require('../routes/routes');
 const setResponseTypeToJson = require('./setResponseTypeJson/setResponseTypeJson');
 const reqTypeValidaton = require('./validation/requestTypeValidation');
 
+const addEventHandlers = require('../eventHandlers/eventHandlers');
+
+addEventHandlers();
 
 const middleware = express();
 
@@ -29,6 +32,7 @@ middleware.use(function(req, res) {
 });
 middleware.use(logger.errorLogger);
 middleware.use(function(err, req, res, next) {
+    console.log(err);
     res.status(500).send({'message': 'Internal server error.', status: false});
 });
 

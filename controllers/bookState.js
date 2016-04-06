@@ -24,6 +24,11 @@ const sendResponse = require('../utils/sendResponse');
  *        type: array
  *        items:
  *         type: string
+ *      - name: 'Authorization'
+ *        in: header
+ *        type: string
+ *        required: true
+ *        description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *     responses:
  *       200:
  *        description: 'Returns the complete status object as data by default. If "fields" query param is passed
@@ -65,6 +70,6 @@ const sendResponse = require('../utils/sendResponse');
  *
  */
 exports.currentStateOfBook = function (req, res) {
-    sendResponse(res, {'message': 'Found Book Status', status: true, data: req.bookSharing.bookStatus}, 200);
+    sendResponse(res, {'message': 'Found Book Status', status: true, data: req.bookSharing.bookState}, 200);
 };
 

@@ -7,19 +7,14 @@ class Workflow extends EventEmitter {
     constructor() {
         super();
     }
-    emitEvent(eventName, eventData, callBack, eventStoreErrorHandler) {
-        const workflow = this;
-        //@todo: add better exception mechanism.
-        eventStoreErrorHandler = eventStoreErrorHandler || function(err) {
-                throw err;
-            };
+    emitEvent(eventName, eventData) {
 
-        eventStoreRepo.createEvent(eventName, eventData)
+      const workflow = this;
+
+      return eventStoreRepo.createEvent(eventName, eventData)
             .then(function (storedEvent) {
-                    workflow.emit(eventName, eventData);
-                    if (callBack) callBack();
-                },
-                eventStoreErrorHandler);
+                return workflow.emit(eventName, eventData);
+            });
     };
 }
 const workflow = new Workflow();

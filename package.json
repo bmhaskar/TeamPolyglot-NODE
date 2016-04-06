@@ -4,7 +4,7 @@
   "description": "This is a book sharing application. It functions as a distributed library management, also maintains the personal catelog. ",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests --recursive",
+    "test": "mocha tests -t 50000 --recursive --bail    tests ",
     "start": "node index.js"
   },
   "keywords": [
@@ -18,16 +18,21 @@
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.0",
+    "elasticsearch": "^10.1.3",
     "express": "^4.13.4",
     "express-winston": "^1.3.0",
     "jsonwebtoken": "^5.7.0",
     "mongoose": "^4.4.6",
     "mongoose-paginate": "^5.0.0",
     "ms": "^0.7.1",
+    "nodemailer": "^2.3.0",
+    "nodemailer-mailgun-transport": "^1.0.1",
     "passport": "^0.3.2",
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
     "swagger-jsdoc": "^1.2.0",
+    "swig": "^1.4.2",
+    "uuid": "^2.0.1",
     "winston": "^2.2.0"
   },
   "devDependencies": {

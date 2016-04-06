@@ -44,6 +44,11 @@ const deleteUser = function (req, res) {
  *          description: 'User object which needs to be created.'
  *          schema:
  *            $ref: '#/definitions/NewUser'
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - User
  *      summary: Creates an user
@@ -87,6 +92,11 @@ exports.post = function (req, res) {
  *          required: false
  *          description: 'Page number from where we want to start fetching users.'
  *          type: integer
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - User
  *      summary: Retrieves list of users
@@ -165,12 +175,12 @@ exports.getUsers = function (req, res) {
 
     userRepo.findUsers(limit, page).then(function (result) {
         if (!result.docs.length) {
-            sendResponse(res, {messgae: 'Could not find users', status: false}, 404);
+            sendResponse(res, {message: 'Could not find users', status: false}, 404);
         } else {
             sendResponse(res, {message: 'Found users', data: result, status: true}, 200);
         }
     }, function (error) {
-        sendResponse(res, {messgae: 'Could not fetch users', status: false, error: error}, 500);
+        sendResponse(res, {message: 'Could not fetch users', status: false, error: error}, 500);
     });
 };
 /**
@@ -184,6 +194,11 @@ exports.getUsers = function (req, res) {
  *          required: true
  *          description: 'Id of user to be retrieved'
  *          type: string
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - User
  *      summary: Retrieves user details by user id
@@ -240,6 +255,11 @@ exports.getUser = function (req, res) {
  *          required: true
  *          description: 'Name of user to be retrieved'
  *          type: string
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - User
  *      summary: Retrieves user details by username
@@ -313,6 +333,11 @@ exports.getUserByName = function (req, res) {
  *                type: array
  *                items:
  *                  $ref: '#/definitions/Role'
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - User
  *      summary: Updates user details
@@ -370,6 +395,11 @@ exports.putForName = function (req, res) {
  *          required: true
  *          type: string
  *          description: 'Name of user to be deleted'
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - User
  *      summary: Deletes the user which has supplied username
@@ -443,6 +473,11 @@ exports.deleteByName = function (req, res) {
  *                type: array
  *                items:
  *                  $ref: '#/definitions/Role'
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - User
  *      summary: Updates user details
@@ -499,6 +534,11 @@ exports.putForId = function (req, res) {
  *          required: true
  *          type: string
  *          description: 'Id of user to be deleted'
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *      tags:
  *        - User
  *      summary: Deletes the user which has supplied id
@@ -541,5 +581,5 @@ exports.putForId = function (req, res) {
  *
  */
 exports.deleteById = function (req, res) {
-    deleteUser(req, res);
+    return deleteUser(req, res);
 };
