@@ -1,17 +1,18 @@
 'use strict';
 const winston = require('winston');
 const path = require('path');
+const winstonDailyRotate =  require('winston-daily-rotate-file');
 
 const config = require('../config/config');
 
-const dubugLogFileTransport = new winston.transports.File({
+const dubugLogFileTransport = new (winstonDailyRotate)({
     name: 'debug-log-file',
     level: 'debug',
     handleExceptions: true,
     json: true,
     colorize: false,
-    datePattern: '.yyyy-MM-ddTHH.log',
-    filename: path.join(config.logDir , "debug_log")
+    datePattern: '.yyyy-MM-ddTMM-HH.log',
+    filename: path.join(config.logDir , "debug")
 });
 
 const makeLogger = function (){

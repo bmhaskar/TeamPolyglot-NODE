@@ -3,6 +3,7 @@
 const winston = require('winston');
 const expressWinston = require('express-winston');
 const path = require('path');
+const winstonDailyRotate =  require('winston-daily-rotate-file');
 
 const config = require('../../config/config');
 
@@ -11,27 +12,23 @@ const consoleTransport = new winston.transports.Console({
     	colorize: true
     });
 
-const errorFileTransport = new winston.transports.File({
+const errorFileTransport = new (winstonDailyRotate)({
 			name: 'error-file',      		
       		level: 'error',
-      		datePattern: '.yyyy-MM-ddTHH.log',
+			datePattern: '.yyyy-MM-ddTMM-HH.log',
       		handleExceptions: true,
             json: true,
-            // maxsize: 5242880, //5MB
-            // maxFiles: 5,
             colorize: false,
-  			filename: path.join(config.logDir , "error_log")
+  			filename: path.join(config.logDir , "error")
 	});
-const accessLogFileTransport = new winston.transports.File({
+const accessLogFileTransport = new (winstonDailyRotate)({
 			name: 'access-log-file',      		
       		level: 'info',
       		handleExceptions: true,
             json: true,
-            // maxsize: 5242880, //5MB
-            // maxFiles: 5,
             colorize: false,
-      		datePattern: '.yyyy-MM-ddTHH.log',
-  			filename: path.join(config.logDir , "access_log")
+			datePattern: '.yyyy-MM-ddTMM-HH.log',
+  			filename: path.join(config.logDir , "access")
 	});
 
 
