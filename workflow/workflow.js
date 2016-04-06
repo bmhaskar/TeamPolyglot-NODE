@@ -1,7 +1,7 @@
 'use strict';
 const EventEmitter  = require("events").EventEmitter;
 
-const eventStoreRepo = require("../repositories/eventStoreRepo");
+const eventStoreRepo = require("../repositories/eventStore");
 
 class Workflow extends EventEmitter {
     constructor() {
