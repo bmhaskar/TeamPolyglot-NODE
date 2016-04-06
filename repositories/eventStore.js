@@ -1,9 +1,9 @@
 'use strict';
-const EventStore = require('../models/eventStore');
+const EventStore = require('../models/eventStoreRepo');
 
-const eventStore = {};
+const eventStoreRepo = {};
 
-eventStore.createEvent = function(eventName, eventData) {
+eventStoreRepo.createEvent = function(eventName, eventData) {
     const eventStore = new EventStore({
        name: eventName,
         data: eventData
@@ -11,4 +11,4 @@ eventStore.createEvent = function(eventName, eventData) {
     return eventStore.save();
 };
 
-module.exports = eventStore;
+module.exports = eventStoreRepo;
