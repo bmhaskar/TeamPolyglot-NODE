@@ -46,13 +46,20 @@ describe('Book api', function () {
     };
     before(function (done) {        
         testUtils.cleanDatabases(function () {
-            require('../../index').start().then(function (server) {
-                app = server;
-                testUtils.getToken(app, function (userToken) {
-                    token = userToken;
+            testUtils.cleanIndexes()
+                .then(function () {
+                    return require('../../index').start()
+                })
+                .then(function (server) {
+                    app = server;
+                    testUtils.getToken(app, function (userToken) {
+                        token = userToken;
+                        done();
+                    });
+                }).catch(function (err) {
+                    console.log(err);
                     done();
                 });
-            });
         });
     });
 

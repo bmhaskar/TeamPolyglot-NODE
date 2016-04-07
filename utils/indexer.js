@@ -7,6 +7,10 @@ config.elasticSearch.log = logger;
 
 const elasticSearchClient = new Elasticsearch.Client(config.elasticSearch);
 
+function getIndexName(indexName) {
+    return indexName || config.elasticSearchMapping.index;
+}
+
 
 /**
  * Delete an existing index
@@ -15,7 +19,7 @@ const elasticSearchClient = new Elasticsearch.Client(config.elasticSearch);
  */
 function deleteIndex(indexName) {
     return elasticSearchClient.indices.delete({
-        index: indexName
+        index: getIndexName(indexName)
     });
 }
 exports.deleteIndex = deleteIndex;
@@ -23,11 +27,15 @@ exports.deleteIndex = deleteIndex;
 /**
  * create the index
  * @param indexName
+ * @param mappings
  * @returns  Promise
  */
-function createIndex(indexName) {
+function createIndex(indexName, mappings) {
     return elasticSearchClient.indices.create({
-        index: indexName
+        index: getIndexName(indexName),
+        body: {
+            mappings: mappings
+        }
     });
 };
 exports.createIndex = createIndex;
@@ -40,7 +48,7 @@ exports.createIndex = createIndex;
  */
 function indexExists(indexName) {
     return elasticSearchClient.indices.exists({
-        index: indexName
+        index: getIndexName(indexName)
     })
 };
 exports.indexExists = indexExists;
@@ -53,13 +61,21 @@ exports.putMapping = putMapping;
 /**
  * Indexes object into elastic search
  * @param document object to be indexed
- * @param indexName name of the index in which we want to add the object
  * @param type type of the object as per configuration of elastic search
+ * @param parent id of parent document if any
+ * @param indexName name of the index in which we want to add the object
  * @returns Promise
  */
-function add(document, indexName, type) {
-    const indexableDocument = {index: indexName, type: type, body: document};
+function add(document, type, parent, indexName) {
 
+    const indexableDocument = {
+        index: getIndexName(indexName),
+        type: type,
+        body: document,
+        refresh: true,
+        parent: parent
+    };
+    
     return elasticSearchClient.index(indexableDocument);
 };
 exports.add = add;
@@ -83,7 +99,7 @@ exports.delete = deleteDoc;
  * @return Promise
  */
 function getMapping(index, type) {
-    return elasticSearchClient.indices.getMapping({index: index, type:type});
+    return elasticSearchClient.indices.getMapping({index: index, type: type});
 };
 exports.getMapping = getMapping;
 
@@ -92,28 +108,14 @@ const init = function () {
     const mappings = config.elasticSearchMapping.mappings;
 
     return indexExists(indexName)
-            .then(function (indexExist) {
-                    if (!indexExist) {
-                        return createIndex(indexName)
-                    }
-                })
-            .then(function () {
-                const docTypes  = Object.keys(mappings);
-                return getMapping(indexName, docTypes);
-            })
-            .then(function (mapping) {
-                if(!Object.keys(mapping).length) {
-                    let promises = [];
-                    for(let documentType in mappings) {
-                        promises.push(putMapping({index: indexName, type: documentType, body: mappings[documentType]}))
-                    }
-                    return Promise.all(promises);
-                }
-            })
-            .catch(function (err) {
-                console.log(err);
-                logger.debugLogger.log('error', 'Could not initialise elastic search', err);
-            });
-
+        .then(function (indexExist) {
+            if (!indexExist) {
+                return createIndex(indexName, mappings);
+            }
+        })
+        .catch(function (err) {
+            console.log(err);
+            logger.debugLogger.log('error', 'Could not initialise elastic search', err);
+        });
 };
 exports.init = init;

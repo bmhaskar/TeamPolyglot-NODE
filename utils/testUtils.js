@@ -4,7 +4,16 @@ const assert = require('assert');
 const request = require('supertest');
 
 const config = require('../config/config');
+const indexer = require('./indexer');
 const testUtils = {};
+
+testUtils.cleanIndexes = function () {
+    return indexer.indexExists().then(function (indexExists) {
+            if(indexExists){
+                return indexer.deleteIndex();
+            }
+    });
+};
 
 testUtils.cleanDatabases = function (cb) {
     mongoose.connect(config.database.mongoose, function (err) {

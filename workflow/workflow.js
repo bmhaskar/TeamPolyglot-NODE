@@ -8,9 +8,7 @@ class Workflow extends EventEmitter {
         super();
     }
     emitEvent(eventName, eventData) {
-
       const workflow = this;
-
       return eventStoreRepo.createEvent(eventName, eventData)
             .then(function (storedEvent) {
                 return workflow.emit(eventName, eventData);

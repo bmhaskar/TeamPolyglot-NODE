@@ -1,30 +1,55 @@
 'use strict';
-
 const elasticSearchMapping = {
     index: 'booksharing',
-        mappings:  {
+    mappings: {
+        bookTransaction: {
+            properties: {
+                event: {
+                    type: 'string',
+                    index: 'not_analyzed'
+                },
+                createdAt: {
+                    type: 'date'
+                }
+
+            }
+        },
         book: {
-            _parent : {
+            _parent: {
                 type: 'bookTransaction'
             },
             properties: {
                 name: {
                     type: 'string',
-                        copy_to: 'name_exact'
+                    copy_to: 'name_exact'
                 },
                 name_exact: {
                     type: 'string',
-                        index: 'not_analyzed'
+                    index: 'not_analyzed'
                 },
                 publishedOn: {
                     type: 'date'
                 },
                 authors: {
-                    type: 'nested'
+                    type: 'nested',
+                    properties: {
+                        name: {
+                            type: 'string',
+                            copy_to: 'name_exact'
+                        },
+                        name_exact: {
+                            type: 'string',
+                            index: 'not_analyzed'
+                        },
+                        email: {
+                            type: 'string',
+                            index: 'not_analyzed'
+                        }
+                    }
                 },
                 comments: {
                     type: 'nested',
-                        properties: {
+                    properties: {
                         body: {
                             type: 'string'
                         },
@@ -43,11 +68,11 @@ const elasticSearchMapping = {
                     properties: {
                         name: {
                             type: 'string',
-                                copy_to: 'name_exact'
+                            copy_to: 'name_exact'
                         },
                         name_exact: {
                             type: 'string',
-                                index: 'not_analyzed'
+                            index: 'not_analyzed'
                         },
                         address: {
                             properties: {
@@ -68,7 +93,7 @@ const elasticSearchMapping = {
                                 },
                                 zip: {
                                     type: 'string',
-                                        index: 'not_analyzed'
+                                    index: 'not_analyzed'
                                 }
                             }
                         },
@@ -85,11 +110,11 @@ const elasticSearchMapping = {
                 },
                 isbn13: {
                     type: 'string',
-                        index: 'not_analyzed'
+                    index: 'not_analyzed'
                 },
                 isbn10: {
                     type: 'string',
-                        index: 'not_analyzed'
+                    index: 'not_analyzed'
                 },
                 tags: {
                     type: 'string'
@@ -103,8 +128,8 @@ const elasticSearchMapping = {
             }
 
         },
-        relatedUser :{
-            _parent : {
+        relatedUser: {
+            _parent: {
                 type: 'bookTransaction'
             },
             properties: {
@@ -121,10 +146,10 @@ const elasticSearchMapping = {
                 },
                 roles: {
                     type: 'nested',
-                        properties: {
+                    properties: {
                         name: {
                             type: 'string',
-                                index: 'not_analyzed'
+                            index: 'not_analyzed'
                         },
                         createdAt: {
                             type: 'date'
@@ -141,20 +166,10 @@ const elasticSearchMapping = {
                     type: 'date'
                 }
             }
-        },
-        bookTransaction: {
-            properties: {
-                createdAt: {
-                    type: 'date'
-                },
-                updatedAt: {
-                    type: 'date'
-                }
-            }
         }
 
     }
 };
 
 
-module.exports =   elasticSearchMapping;
+module.exports = elasticSearchMapping;
