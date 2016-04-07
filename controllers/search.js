@@ -1,4 +1,9 @@
 'use strict';
+const sendResponse = require('../utils/sendResponse');
+const abstractSearch = require('../search/abstractSearch');
+
+const searchUtil = require('../utils/search');
+
 /**
  * @swagger
  * /search:
@@ -12,12 +17,12 @@
  *       - name: limit
  *         in: query
  *         required: false
- *         description: 'Number of books to be retrieved'
+ *         description: 'Number of searched records to be retrieved'
  *         type: integer
  *       - name: page
  *         in: query
  *         required: false
- *         description: 'Page number from where we want to start fetching books'
+ *         description: 'Page number from where we want to start fetching searched  records'
  *         type: integer
  *       - name: q
  *         in: query
@@ -65,5 +70,21 @@
  *
  */
 exports.search = function (req, res) {
-    
+    const queryString = req.query.q;
+    const from = req.query.page || 0;
+    const size = req.query.limit || 10;
+    abstractSearch(queryString, from, size).catch(function () {
+            throw {message: 'Internal server error. Could not perform search opeartion', code: 500};
+        })
+        .then(searchUtil.parseSearchResult)
+        .then(
+            function (result) {
+                const  pages = parseInt(result.total/size);
+                const data = {total: result.total, page: from || 1,
+                    pages: pages || 1 , docs: result.hits };
+                sendResponse(res, {message: 'Found records for query string '+ queryString, data: data, status: true}, 200);
+            }
+        ).catch(function (err) {
+            sendResponse(res, {message: err, status: false}, 500);
+        });
 };

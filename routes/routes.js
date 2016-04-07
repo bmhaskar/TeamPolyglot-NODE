@@ -9,6 +9,7 @@ const userController = require('../controllers/user');
 
 const authenticationController = require('../controllers/authenticate');
 const bookStateController = require('../controllers/bookState');
+const searchController = require('../controllers/search');
 
 const authenticateRequest = require('../middlewares/authenticate/authenticate');
 const findUserById = require('../middlewares/findUser/findUserById');
@@ -49,5 +50,7 @@ routes.route('/user/username/:username')
     .get(userController.getUserByName)
     .put(userController.putForName)
     .delete(userController.deleteByName);
+
+routes.route('/search').get(authenticateRequest, searchController.search);
 
 module.exports = routes;
