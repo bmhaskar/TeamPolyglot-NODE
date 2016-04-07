@@ -29,6 +29,11 @@ const searchUtil = require('../utils/search');
  *         required: true
  *         type: string
  *         description: Search string
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *     responses:
  *       200:
  *        description: List of books, filtered by tags
