@@ -8,7 +8,11 @@ const indexer = require('./indexer');
 const testUtils = {};
 
 testUtils.cleanIndexes = function () {
-    return indexer.deleteIndex(config.elasticSearchMapping.index);
+    return indexer.indexExists().then(function (indexExists) {
+            if(indexExists){
+                return indexer.deleteIndex();
+            }
+    });
 };
 
 testUtils.cleanDatabases = function (cb) {

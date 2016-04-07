@@ -280,13 +280,13 @@ exports.post = function (req, res) {
 
             const authorIds = getAuthorIds(authors);
             req.body.authors = authorIds;
-
             bookRepo.createBook(req.body).then(function (book) {
 
-                workflow.emitEvent("book_created", {book: book, app: req.bookSharing});
-
                 bookRepo.findById(book._id).then(function (populatedBook) {
+
+                        workflow.emitEvent("book_created", {book: populatedBook, app: req.bookSharing});
                         sendResponse(res, {'message': 'Book created', status: true, data: populatedBook}, 200);
+
                     }, function (err) {
                         sendResponse(res, {'message': 'Could not fetch saved book.', status: false, error: err}, 500);
                     }

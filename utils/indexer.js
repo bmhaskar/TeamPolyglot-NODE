@@ -19,7 +19,7 @@ function getIndexName(indexName) {
  */
 function deleteIndex(indexName) {
     return elasticSearchClient.indices.delete({
-        index: indexName
+        index: getIndexName(indexName)
     });
 }
 exports.deleteIndex = deleteIndex;
@@ -61,13 +61,21 @@ exports.putMapping = putMapping;
 /**
  * Indexes object into elastic search
  * @param document object to be indexed
- * @param indexName name of the index in which we want to add the object
  * @param type type of the object as per configuration of elastic search
+ * @param parent id of parent document if any
+ * @param indexName name of the index in which we want to add the object
  * @returns Promise
  */
-function add(document, indexName, type) {
-    const indexableDocument = {index: indexName, type: type, body: document};
+function add(document, type, parent, indexName) {
 
+    const indexableDocument = {
+        index: getIndexName(indexName),
+        type: type,
+        body: document,
+        refresh: true,
+        parent: parent
+    };
+    
     return elasticSearchClient.index(indexableDocument);
 };
 exports.add = add;
