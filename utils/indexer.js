@@ -1,11 +1,6 @@
 'use strict';
-const Elasticsearch = require('elasticsearch');
 const config = require('../config/config');
-const logger = require('../logger/elasticSearchLogger');
-
-config.elasticSearch.log = logger;
-
-const elasticSearchClient = new Elasticsearch.Client(config.elasticSearch);
+const elasticSearchClient = require('./elasticSearchClient');
 
 function getIndexName(indexName) {
     return indexName || config.elasticSearchMapping.index;
@@ -49,7 +44,7 @@ exports.createIndex = createIndex;
 function indexExists(indexName) {
     return elasticSearchClient.indices.exists({
         index: getIndexName(indexName)
-    })
+    });
 };
 exports.indexExists = indexExists;
 
@@ -104,6 +99,7 @@ function getMapping(index, type) {
 exports.getMapping = getMapping;
 
 const init = function () {
+
     const indexName = config.elasticSearchMapping.index;
     const mappings = config.elasticSearchMapping.mappings;
 
