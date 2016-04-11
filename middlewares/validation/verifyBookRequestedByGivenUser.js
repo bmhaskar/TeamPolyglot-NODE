@@ -11,6 +11,7 @@ module.exports = function (req, res, next) {
             sendResponse(res, {'message':'Invalid input.User never requested this book', status: false}, 400);
         })
         .then(function (requestedByInfo) {
+            req.bookSharing.requestedByUser = requestedByInfo.user;
             req.bookSharing.requestedByUserIndex = requestedByInfo.index;
             next();
         })
