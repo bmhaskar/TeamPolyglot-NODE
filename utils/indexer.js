@@ -64,14 +64,16 @@ exports.putMapping = putMapping;
 function add(document, type, parent, indexName) {
 
     const indexableDocument = {
+        id: document.id,
         index: getIndexName(indexName),
         type: type,
         body: document,
         refresh: true,
-        parent: parent
+        parent: parent,
+        opType: 'create'
     };
     
-    return elasticSearchClient.index(indexableDocument);
+    return elasticSearchClient.create(indexableDocument);
 };
 exports.add = add;
 

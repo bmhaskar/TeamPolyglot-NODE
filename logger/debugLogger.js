@@ -15,6 +15,26 @@ const dubugLogFileTransport = new (winstonDailyRotate)({
     filename: path.join(config.logDir , "debug")
 });
 
+const infoLogFileTransport = new (winstonDailyRotate)({
+    name: 'info-log-file',
+    level: 'info',
+    handleExceptions: true,
+    json: true,
+    colorize: false,
+    datePattern: '.yyyy-MM-ddTMM-HH.log',
+    filename: path.join(config.logDir , "info")
+});
+
+const errorLogFileTransport = new (winstonDailyRotate)({
+    name: 'error-log-file',
+    level: 'error',
+    handleExceptions: true,
+    json: true,
+    colorize: false,
+    datePattern: '.yyyy-MM-ddTMM-HH.log',
+    filename: path.join(config.logDir , "error")
+});
+
 const makeLogger = function (){
 
     winston.addColors({
@@ -39,7 +59,10 @@ const makeLogger = function (){
                 colorize: true,
                 json: false
             }),
-            dubugLogFileTransport
+            dubugLogFileTransport,
+            infoLogFileTransport,
+            errorLogFileTransport,
+
         ],
         exceptionHandlers: [
             new(winston.transports.Console)({
@@ -51,7 +74,7 @@ const makeLogger = function (){
                 colorize: true,
                 json: false
             }),
-            dubugLogFileTransport
+            errorLogFileTransport
         ],
         exitOnError: false
     });

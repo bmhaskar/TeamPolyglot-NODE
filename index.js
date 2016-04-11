@@ -7,7 +7,8 @@ const config = require('./config/config');
 const middleware = require('./middlewares/middleware');
 const databaseUtil = require('./utils/database');
 const indexerUtil = require('./utils/indexer');
-const logger = require('./middlewares/logger/logger');
+const databaseSetup = require('./utils/databaseSetup');
+const logger = require('./logger/debugLogger');
 
 const app = express();
 let server = {};
@@ -25,11 +26,11 @@ const onServerError = function onError(error) {
     // handle specific listen errors with friendly messages
     switch (error.code) {
         case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
+            logger.log('error', bind + ' requires elevated privileges', error);
             process.exit(1);
             break;
         case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
+            logger.log('error', bind + ' is already in use', error);
             process.exit(1);
             break;
         default:
@@ -39,16 +40,17 @@ const onServerError = function onError(error) {
 
 
 const start = function () {
-    return databaseUtil.connectDatabase().then(indexerUtil.init).then(function () {
-        
-        server = app.listen(config.port, config.host, function () {
-            console.log('Book sharing application started at address: ' + server.address().address + ' port: ' + server.address().port);
-        });
-
-        return server.on('error', onServerError);
-    }).catch(function (err) {
-        logger.errorLogger.log('error', 'Could not start server', err);
-    })
+    return databaseUtil.connectDatabase()
+        .then(databaseSetup)
+        .then(indexerUtil.init)
+        .then(function () {
+            server = app.listen(config.port, config.host, function () {
+                console.log('Book sharing application started at address: ' + server.address().address + ' port: ' + server.address().port);
+            });
+            return server.on('error', onServerError);
+        }).catch(function (err) {
+            logger.log('error', 'Could not start server', err);
+        })
 };
 
 if(config.env != 'test') {
