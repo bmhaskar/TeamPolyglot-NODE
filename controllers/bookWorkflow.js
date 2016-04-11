@@ -4,6 +4,8 @@ const sendResponse = require('../utils/sendResponse');
 const bookStateRepo = require('../repositories/bookState');
 const bookStateUtil = require('../utils/bookStateUtil');
 const userRepo = require('../repositories/user');
+const workflow = require('../workflow/workflow');
+
 
 const updateBookState = function (updatedBookState, bookState) {
     return bookStateRepo.updateBookState(updatedBookState, bookState);
@@ -85,7 +87,7 @@ exports.requestBook = function (req, res) {
 
 
     bookStateUtil.isRequestedByUser(bookState, user)
-        .then(function (requestedByInfo) {            
+        .then(function (requestedByInfo) {
             sendResponse(res, {'message': 'Book request exists', status: false}, 400);
         })
         .then(null, function (err) {
@@ -95,19 +97,21 @@ exports.requestBook = function (req, res) {
             updateBookState(updatedBookState, bookState)
                 .catch(function (err) {
                     throw {
-                      messgae: "Internal server error. Could not create book request",
+                        messgae: "Internal server error. Could not create book request",
                         code: 500
                     };
                 })
                 .then(getUpdatedBookState)
-                .then(function(foundBookState){
-
+                .then(function (foundBookState) {
+                    workflow.emitEvent("book_requested", {
+                        user: user,
+                        bookState: foundBookState
+                    });
                     sendResponse(res, {message: 'Book request created', status: true, data: foundBookState},
                         200);
                 }).catch(function (err) {
-                    sendResponse(res, {message: err.message, status: false}, err.code);
-                })
-
+                sendResponse(res, {message: err.message, status: false}, err.code);
+            })
 
 
         });
@@ -197,7 +201,16 @@ exports.approveBookRequest = function (req, res) {
             };
         })
         .then(getUpdatedBookState)
-        .then(function(foundBookState){
+        .then(function (foundBookState) {
+            workflow.emitEvent("book_borrowed", {
+                book: foundBookState.book, user: user,
+                bookState: foundBookState
+            });
+            workflow.emitEvent("book_lent", {
+                book: foundBookState.book,
+                user: req.bookSharing.currentAuthenticatedUser,
+                bookState: foundBookState
+            });
 
             sendResponse(res, {message: 'Book request approved', status: true, data: foundBookState},
                 200);
@@ -287,7 +300,19 @@ exports.rejectBookRequest = function (req, res) {
             };
         })
         .then(getUpdatedBookState)
-        .then(function(foundBookState){
+        .then(function (foundBookState) {
+
+            workflow.emitEvent("book_request_rejected", {
+                book: foundBookState.book,
+                user: user,
+                bookState: foundBookState
+            });
+
+            workflow.emitEvent("book_request_rejected_by_me", {
+                book: foundBookState.book,
+                user: req.bookSharing.currentAuthenticatedUser,
+                bookState: foundBookState
+            });
 
             sendResponse(res, {message: 'Book request rejected', status: true, data: foundBookState},
                 200);
@@ -382,8 +407,8 @@ exports.markBookAsReturned = function (req, res) {
             };
         })
         .then(getUpdatedBookState)
-        .then(function(foundBookState){
-
+        .then(function (foundBookState) {
+            workflow.emitEvent("book_returned", {book: foundBookState.book, user: user, bookState: foundBookState});
             sendResponse(res, {message: 'Book marked as returned', status: true, data: foundBookState},
                 200);
         }).catch(function (err) {
@@ -476,8 +501,8 @@ exports.markBookAsLost = function (req, res) {
                 };
             })
             .then(getUpdatedBookState)
-            .then(function(foundBookState){
-
+            .then(function (foundBookState) {
+                workflow.emitEvent("book_lost", {book: foundBookState.book, user: user, bookState: foundBookState});
                 sendResponse(res, {message: 'Book marked as lost', status: true, data: foundBookState},
                     200);
             }).catch(function (err) {
@@ -485,23 +510,29 @@ exports.markBookAsLost = function (req, res) {
         });
     };
 
-    if(userId) {
+    if (userId) {
         userRepo.findById(userId)
-            .then(null, function (err) {
+            .catch(function (err) {
                 throw {message: 'Internal server error Could not fetch user', status: false, code: 500};
             })
             .then(function (foundUser) {
                 if (!foundUser) {
-                    throw {message:'Could not find user with id: ' + userId, code:  404};
+                    throw {message: 'Could not find user with id: ' + userId, code: 404};
                 }
                 user = foundUser;
-                markLost(bookState, res, user);
+                if (bookState.borrowedBy._id.toString() == user._id.toString()) {
+
+                    markLost(bookState, res, user);
+                } else {
+                    throw {'message': 'Invalid input. Book "'+ bookState.book.name +'" was never borrowed by this user', status: false, code: 400};
+                }
             }).catch(function (err) {
-                sendResponse(res, {message: err.message, status: false, error: err}, err.code);
-            });
+            sendResponse(res, {message: err.message, status: false, error: err}, err.code);
+        });
 
     } else {
         markLost(bookState, res, user);
-    };
+    }
+    ;
 
 };

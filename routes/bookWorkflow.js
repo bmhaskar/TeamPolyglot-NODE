@@ -44,10 +44,10 @@ const bookWorkflow = function (routes) {
             verifyBorrowedByGivenUser,
             bookWorkflowController.markBookAsReturned
         );
-    routes.route('/book/lost/:bookId/:userId')
+    routes.route('/book/lost/:bookId')
         .put(
             authenticateRequest, 
-            findBookStateByBookId, 
+            findBookStateByBookId,
             bookWorkflowController.markBookAsLost);
 
 };

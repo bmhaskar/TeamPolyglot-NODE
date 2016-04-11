@@ -129,8 +129,7 @@ describe('User api', function () {
                 assert(result.body.data.hasOwnProperty('docs'), 'Asserting response has docs');
                 assert(Array.isArray(result.body.data.docs), 'Asserting response has docs as array');
                 assert(result.body.data.docs.length, 'Asserting response has docs as filled array');
-
-                assertProperUser(result.body.data.docs[1], testUtils.user);
+                assertProperUser(result.body.data.docs[2], testUtils.user);
 
                 done();
             })

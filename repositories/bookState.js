@@ -14,7 +14,7 @@ bookStateRepo.createBookState = function (userId, bookId) {
 
 bookStateRepo.findByBookId = function (bookId) {
     return BookState.findOne({book: bookId})
-        .populate('uploadedBy lentBy returnedBy requestedBy lostBy')
+        .populate('uploadedBy borrowedBy returnedBy requestedBy lostBy')
         .populate({
             path: 'book',
             model: 'Book',
@@ -29,7 +29,7 @@ bookStateRepo.findByBookId = function (bookId) {
 
 bookStateRepo.findById = function (bookStateId) {
     return BookState.findOne({_id: bookStateId})
-        .populate('uploadedBy lentBy returnedBy requestedBy lostBy')
+        .populate('uploadedBy borrowedBy returnedBy requestedBy lostBy')
         .populate({
             path: 'book',
             model: 'Book',
