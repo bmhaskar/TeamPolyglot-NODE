@@ -5,4 +5,4 @@ const setResponseTypeToJson = function(req, res, next) {
     next();
 }
 
-module.exports = setResponseTypeToJson
+module.exports = setResponseTypeToJson;

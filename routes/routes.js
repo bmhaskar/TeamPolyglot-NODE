@@ -6,6 +6,7 @@ const routes = express.Router();
 
 const bookController = require('../controllers/book');
 const userController = require('../controllers/user');
+const bookReportController = require('../controllers/bookReport');
 
 const authenticationController = require('../controllers/authenticate');
 const bookStateController = require('../controllers/bookState');
@@ -39,7 +40,9 @@ bookWorkflow(routes);
 
 
 routes.route('/users').get(userController.getUsers);
+
 routes.route('/user').post(userController.post);
+
 routes.route('/user/id/:userId([a-zA-Z0-9]{24})')
     .all(authenticateRequest, findUserById)
     .get(userController.getUser)
@@ -50,6 +53,10 @@ routes.route('/user/username/:username')
     .get(userController.getUserByName)
     .put(userController.putForName)
     .delete(userController.deleteByName);
+
+routes.route('/book/reports/recently-added')
+    .all(authenticateRequest)
+    .get(bookReportController.getRecentlyAddedBook);
 
 routes.route('/search').get(authenticateRequest, searchController.search);
 

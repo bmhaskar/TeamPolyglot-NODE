@@ -45,5 +45,9 @@ bookRepo.deleteBook = function (bookId) {
     return Book.findByIdAndRemove(bookId).exec();
 };
 
+bookRepo.findByFromDate = function (limit, page, dateFrom) {
+  return   Book.paginate({"createdAt": {"$gte": dateFrom}}, {limit: Number(limit), page: page, populate: ['authors', 'comments.createdBy']});
+};
+
 
 module.exports = bookRepo;
