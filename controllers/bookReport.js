@@ -25,13 +25,12 @@ const debugLogger = require('../logger/debugLogger');
  *          type: string
  *          required: true
  *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
- *       -  name: 'since'
+ *       -  name: 'days'
  *          in: query
- *          type: string
- *          format: date
+ *          type: integer
  *          required: false
- *          description: 'Date from when the books added are needed'
- *     description: Returns recently added book
+ *          description: 'Number of days from current date for which most recently added books are needed'
+ *     description: Returns recently added book for given number of days (15 days is default)
  *     summary: Returns recently added book
  *     tags:
  *      - Book Reports
@@ -91,13 +90,16 @@ exports.getRecentlyAddedBook = function (req, res) {
     sendResponse(res, {message: 'Invalid input.', status: false}, 400);
   }
 
-  let dateFrom = req.query.since;
-  if(!dateFrom) {
-    let today = new Date();
+  let daysSince = req.query.days;
+  let today = new Date();
+  let dateSince = "";
     // If no date is provided, we will fetch the books added in last 15 days
-    let dateFifteenDaysBack = new Date().setDate(today.getDate()-15);
-    dateFrom = new Date(dateFifteenDaysBack);
+  if(!daysSince) {
+     dateSince = new Date().setDate(today.getDate() - 15);
+  } else {
+     dateSince = new Date().setDate(today.getDate() - daysSince);
   }
+    let dateFrom = new Date(dateSince);
 
   bookRepo.findByFromDate(limit, page, dateFrom)
     .then(
