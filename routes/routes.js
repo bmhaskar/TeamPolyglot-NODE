@@ -10,6 +10,7 @@ const userController = require('../controllers/user');
 const authenticationController = require('../controllers/authenticate');
 const bookStateController = require('../controllers/bookState');
 const searchController = require('../controllers/search');
+const bookReportController = require('../controllers/bookReport');
 
 const authenticateRequest = require('../middlewares/authenticate/authenticate');
 const findUserById = require('../middlewares/findUser/findUserById');
@@ -29,27 +30,28 @@ routes.route('/authenticate/reset-password/:token').get(authenticationController
 routes.route('/books').get(authenticateRequest, bookController.getBooks);
 routes.route('/book').post(authenticateRequest, bookController.post);
 routes.route('/book/:bookId')
-    .all(findBookById, authenticateRequest)
-    .get(bookController.getBookById)
-    .put(bookController.put)
-    .delete(bookController.delete);
+  .all(findBookById, authenticateRequest)
+  .get(bookController.getBookById)
+  .put(bookController.put)
+  .delete(bookController.delete);
 
 routes.route('/book/status/:bookId').get(authenticateRequest, findBookStateByBookId, bookStateController.currentStateOfBook);
 bookWorkflow(routes);
+routes.route('/book/reports/most-read').get(authenticateRequest, bookReportController.getMostReadBook);
 
 
 routes.route('/users').get(userController.getUsers);
 routes.route('/user').post(userController.post);
 routes.route('/user/id/:userId([a-zA-Z0-9]{24})')
-    .all(authenticateRequest, findUserById)
-    .get(userController.getUser)
-    .put(userController.putForId)
-    .delete(userController.deleteById);
+  .all(authenticateRequest, findUserById)
+  .get(userController.getUser)
+  .put(userController.putForId)
+  .delete(userController.deleteById);
 routes.route('/user/username/:username')
-    .all(authenticateRequest, findUserByName)
-    .get(userController.getUserByName)
-    .put(userController.putForName)
-    .delete(userController.deleteByName);
+  .all(authenticateRequest, findUserByName)
+  .get(userController.getUserByName)
+  .put(userController.putForName)
+  .delete(userController.deleteByName);
 
 routes.route('/search').get(authenticateRequest, searchController.search);
 

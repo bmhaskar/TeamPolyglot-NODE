@@ -1,5 +1,6 @@
 'use strict';
-
+const bookSearch = require('../search/book');
+const sendResponse = require('../utils/sendResponse');
 /**
  * @swagger
  * /book/reports/recently-added:
@@ -52,6 +53,27 @@ exports.getRecentlyAddedBook = function (req, res) {
  * /book/reports/most-read:
  *   get:
  *     operationId: getMostReadBook
+ *     parameters:
+ *       -  name: limit
+ *          in: query
+ *          required: false
+ *          description: 'Number of books to be retrieved per page'
+ *          type: integer
+ *       -  name: numberOfBooks
+ *          in: query
+ *          required: false
+ *          description: 'Total number of books to be retrieved'
+ *          type: integer
+ *       -  name: page
+ *          in: query
+ *          required: false
+ *          description: 'Page number from where we want to start fetching books.'
+ *          type: integer
+ *       -  name: 'Authorization'
+ *          in: header
+ *          type: string
+ *          required: true
+ *          description: 'Token which needs to be sent as "Authorization: Bearer XXXXXX" '
  *     description: Returns most read book
  *     summary: Returns most read book
  *     tags:
@@ -92,6 +114,15 @@ exports.getRecentlyAddedBook = function (req, res) {
  */
 exports.getMostReadBook = function (req, res) {
 
+  const numOfBooks = req.query.numberOfBooks || 10;
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 10;
+  bookSearch.mostReadBooks(numOfBooks, page, limit).then(function(data) {
+    sendResponse(res, {message: 'Found books.', data: data, status: true}, 200);
+  }).catch(function(error){
+      sendResponse(res, {message: 'Could not fetch books', status: false, error: error}, 500);
+
+  });
 };
 
 

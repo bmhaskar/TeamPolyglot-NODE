@@ -283,7 +283,7 @@ exports.post = function (req, res) {
             bookRepo.createBook(req.body).then(function (book) {
 
                 bookRepo.findById(book._id).then(function (populatedBook) {
-
+                    req.bookSharing.bookState.book = populatedBook;
                         workflow.emitEvent("book_created", {book: populatedBook, app: req.bookSharing});
                         sendResponse(res, {'message': 'Book created', status: true, data: populatedBook}, 200);
 

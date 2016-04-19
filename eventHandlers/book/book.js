@@ -7,7 +7,7 @@ const bookTransactionRepo = require('../../repositories/bookTransaction');
 
 
 const handleBookCreated = function (eventData) {
-    return bookStateRepo.createBookState(eventData.app.currentAuthenticatedUser._id, eventData.book._id)
+      return bookStateRepo.createBookState(eventData.app.currentAuthenticatedUser._id, eventData.book._id)
         .then(function (savedBookState) {
             return bookTransactionRepo.indexBookTransaction(
                     eventData.book,

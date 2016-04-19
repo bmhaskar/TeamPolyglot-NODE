@@ -76,7 +76,7 @@ const searchUtil = require('../utils/search');
  */
 exports.search = function (req, res) {
     const queryString = req.query.q;
-    const from = req.query.page || 0;
+    const from = req.query.page || 1;
     const size = req.query.limit || 10;
     abstractSearch(queryString, from, size).catch(function () {
             throw {message: 'Internal server error. Could not perform search opeartion', code: 500};

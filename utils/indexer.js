@@ -72,8 +72,7 @@ function add(document, type, parent, indexName) {
         parent: parent,
         opType: 'create'
     };
-    
-    return elasticSearchClient.create(indexableDocument);
+    return elasticSearchClient.create(indexableDocument,(err, res) => {console.log(err)} );
 };
 exports.add = add;
 
