@@ -120,8 +120,11 @@ exports.getMostReadBook = function (req, res) {
   bookSearch.mostReadBooks(numOfBooks, page, limit).then(function(data) {
     sendResponse(res, {message: 'Found books.', data: data, status: true}, 200);
   }).catch(function(error){
-      sendResponse(res, {message: 'Could not fetch books', status: false, error: error}, 500);
-
+      let message  = {message: error.message, status: false};
+      if(!error.code  || error.code == 500) {
+        message.error = error;
+      }
+      sendResponse(res, message, error.code || 500 );
   });
 };
 

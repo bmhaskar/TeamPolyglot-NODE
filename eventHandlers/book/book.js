@@ -7,19 +7,23 @@ const bookTransactionRepo = require('../../repositories/bookTransaction');
 
 
 const handleBookCreated = function (eventData) {
-      return bookStateRepo.createBookState(eventData.app.currentAuthenticatedUser._id, eventData.book._id)
+    return bookStateRepo.createBookState(eventData.app.currentAuthenticatedUser._id, eventData.book._id)
         .then(function (savedBookState) {
+            return bookStateRepo.findById(savedBookState._id);
+        })
+        .then(function (foundBookState) {
             return bookTransactionRepo.indexBookTransaction(
-                    eventData.book,
-                    eventData.app.currentAuthenticatedUser,
-                    savedBookState,
-                    "uploaded"
-                );
-
+                eventData.book,
+                eventData.app.currentAuthenticatedUser,
+                foundBookState,
+                "uploaded"
+            );
         });
 };
 
-const handleBookRequested = function(eventData) {
+const handleBookRequested = function (eventData) {
+     
+    
     return bookTransactionRepo.indexBookTransaction(
         eventData.bookState.book,
         eventData.user,
@@ -28,7 +32,7 @@ const handleBookRequested = function(eventData) {
     );
 };
 
-const handleBookBorrowed = function(eventData) {
+const handleBookBorrowed = function (eventData) {
     return bookTransactionRepo.indexBookTransaction(
         eventData.bookState.book,
         eventData.user,
@@ -37,7 +41,7 @@ const handleBookBorrowed = function(eventData) {
     );
 };
 
-const handleBookRead = function(eventData) {
+const handleBookRead = function (eventData) {
     return bookTransactionRepo.indexBookTransaction(
         eventData.bookState.book,
         eventData.user,
@@ -46,7 +50,7 @@ const handleBookRead = function(eventData) {
     );
 };
 
-const handleBookLost = function(eventData) {
+const handleBookLost = function (eventData) {
     return bookTransactionRepo.indexBookTransaction(
         eventData.bookState.book,
         eventData.user,
@@ -55,7 +59,7 @@ const handleBookLost = function(eventData) {
     );
 };
 
-const handleBookRequestRejected = function(eventData) {
+const handleBookRequestRejected = function (eventData) {
     return bookTransactionRepo.indexBookTransaction(
         eventData.bookState.book,
         eventData.user,
@@ -63,7 +67,7 @@ const handleBookRequestRejected = function(eventData) {
         "book_request_rejected"
     );
 };
-const handleBookRequestRejectedByMe = function(eventData) {
+const handleBookRequestRejectedByMe = function (eventData) {
     return bookTransactionRepo.indexBookTransaction(
         eventData.bookState.book,
         eventData.user,
@@ -71,7 +75,7 @@ const handleBookRequestRejectedByMe = function(eventData) {
         "book_request_rejected_by_me"
     );
 };
-const handleBookLent = function(eventData) {
+const handleBookLent = function (eventData) {
     return bookTransactionRepo.indexBookTransaction(
         eventData.bookState.book,
         eventData.user,
