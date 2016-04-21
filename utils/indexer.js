@@ -72,8 +72,15 @@ function add(document, type, parent, indexName) {
         parent: parent,
         opType: 'create'
     };
-    
-    return elasticSearchClient.create(indexableDocument);
+    return new Promise(function (resolve, reject) {
+        elasticSearchClient.create(indexableDocument, function (error, result) {
+            if(error) {
+                console.log('Error while saving ', error);
+                reject(error);
+            }
+            resolve(result);
+        });
+    });
 };
 exports.add = add;
 

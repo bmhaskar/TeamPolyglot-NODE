@@ -90,7 +90,7 @@ exports.requestBook = function (req, res) {
         .then(function (requestedByInfo) {
             sendResponse(res, {'message': 'Book request exists', status: false}, 400);
         })
-        .then(null, function (err) {
+        .catch(function (err) {
             let updatedBookState = Object.assign({}, bookState);
             updatedBookState.requestedBy.push(user._id);
 

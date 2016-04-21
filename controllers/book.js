@@ -38,11 +38,10 @@ const createAuthorsIfNotPresent = function (authors) {
                     return authorRepo.createAuthor(author);
                 }
             });
-        }
-        ;
+        };
         authorFindPromises.push(foundAuthorPromise);
     });
-    return authorFindPromises;
+    return Promise.all(authorFindPromises);
 };
 
 const getAuthorIds = function (authors) {
@@ -132,7 +131,7 @@ const getAuthorIds = function (authors) {
  *
  */
 exports.getBooks = function (req, res) {
-    
+
     let page = req.query.page || 1;
     let limit = req.query.limit || 10;
 
@@ -272,34 +271,35 @@ exports.getBookById = function (req, res) {
  */
 exports.post = function (req, res) {
 
-    workflow.emitEvent("book_create_requested", { request: req.body, app: req.bookSharing});
+    workflow.emitEvent("book_create_requested", {request: req.body, app: req.bookSharing});
 
-    const authors = createAuthorsIfNotPresent(req.body.authors);
-
-    Promise.all(authors).then(function (authors) {
-
+    createAuthorsIfNotPresent(req.body.authors)
+        .then(function (authors) {
             const authorIds = getAuthorIds(authors);
             req.body.authors = authorIds;
-            bookRepo.createBook(req.body).then(function (book) {
 
-                bookRepo.findById(book._id).then(function (populatedBook) {
-
-                        workflow.emitEvent("book_created", {book: populatedBook, app: req.bookSharing});
-                        sendResponse(res, {'message': 'Book created', status: true, data: populatedBook}, 200);
-
-                    }, function (err) {
-                        sendResponse(res, {'message': 'Could not fetch saved book.', status: false, error: err}, 500);
-                    }
-                );
-
-            }, function (err) {
-                sendResponse(res, {'message': 'Could not save book.', status: false, error: err}, 500);
-            }).end();
-        },
-        function (err) {
-            sendResponse(res, {'message': 'Could not save author.', status: false, error: err}, 500);
-        }
-    );
+            return bookRepo.createBook(req.body)
+        })
+        .catch(function (error) {
+            throw { message: 'Internal server error. Could not save book.', code: 500}
+        })
+        .then(function (book) {
+            return bookRepo.findById(book._id);
+        })
+        .catch(function (error) {
+            throw {'message': 'Could not fetch saved book.', code: 500}
+        })
+        .then(function (populatedBook) {
+            workflow.emitEvent("book_created", {book: populatedBook, app: req.bookSharing});
+            sendResponse(res, {'message': 'Book created', status: true, data: populatedBook}, 200);
+        })
+        .catch(function (error) {
+            let message = {message: error.message, status: false};
+            if (!error.code || error.code == 500) {
+                message.error = error;
+            }
+            sendResponse(res, message, error.code || 500);
+        });
 };
 
 
@@ -371,7 +371,7 @@ exports.put = function (req, res) {
 
     workflow.emitEvent("book_update_requested", req.body);
 
-    const updateBook = function() {
+    const updateBook = function () {
         bookRepo.updateBook(req.body, req.bookSharing.book).then(function (updatedBook) {
 
             workflow.emitEvent("book_updated", updatedBook);
@@ -387,17 +387,16 @@ exports.put = function (req, res) {
         }).end();
     };
 
-    if(req.body.authors) {
-        const authors = createAuthorsIfNotPresent(req.body.authors);
-        Promise.all(authors).then(function (newAuthors) {
-            if(newAuthors) {
+    if (req.body.authors) {
+        createAuthorsIfNotPresent(req.body.authors).then(function (newAuthors) {
+            if (newAuthors) {
                 const authorIds = getAuthorIds(newAuthors);
                 req.body.authors = authorIds;
             } else {
                 req.body.authors = undefined;
             }
             updateBook();
-        }, function(err) {
+        }, function (err) {
             sendResponse(res, {'message': 'Could not save author.', status: false, error: err}, 500);
         });
     } else {
@@ -467,7 +466,7 @@ exports.delete = function (req, res) {
     const book = req.bookSharing.book;
     bookRepo.deleteBook(book._id).then(function (deletedBook) {
         return sendResponse(res, {'message': 'Deleted Book', status: true, data: deletedBook}, 200);
-    }).catch( function (err) {
+    }).catch(function (err) {
         sendResponse(res, {'message': 'Could not delete book.', status: false, error: err}, 500);
     });
 };
