@@ -21,7 +21,7 @@ const updateUser = function (newUser, existingUser, res) {
         sendResponse(res, {'message': 'Updated User', status: true, data: maskPassword(user)}, 200);
     }, function (err) {
         sendResponse(res, {'message': 'Could not update user.', status: false, error: err}, 500);
-    }).end();
+    });
 };
 
 const deleteUser = function (req, res) {
@@ -74,7 +74,7 @@ exports.post = function (req, res) {
         sendResponse(res, {'message': 'User created', status: true, data: maskPassword(user)}, 200);
     }, function (err) {
         sendResponse(res, {'message': 'Could not save user.', status: false, error: err}, 500);
-    }).end();
+    });
 };
 /**
  * @swagger
