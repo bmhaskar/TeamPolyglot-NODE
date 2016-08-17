@@ -1,7 +1,7 @@
 sudo: required
 before_script:
   - sleep 15
-  - /usr/share/elasticsearch/bin/elasticsearch -v --default.path.conf=/etc/elasticsearch/
+  - sudo /usr/share/elasticsearch/bin/elasticsearch -v --default.path.conf=/etc/elasticsearch/
   - curl http://localhost:9200/
 services:
   - elasticsearch
