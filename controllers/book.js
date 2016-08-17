@@ -380,11 +380,11 @@ exports.put = function (req, res) {
                 sendResponse(res, {'message': 'Updated Book', status: true, data: fetchedBook}, 200);
             }, function (err) {
                 sendResponse(res, {'message': 'Could not fetch updated book.', status: false, error: err}, 500);
-            }).end();
+            })
 
         }, function (err) {
             sendResponse(res, {'message': 'Could not update book', status: false, error: err}, 500);
-        }).end();
+        })
     };
 
     if (req.body.authors) {

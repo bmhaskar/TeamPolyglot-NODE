@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-
+var Promise = require("bluebird");
 
 const config = require('./config/config');
 const middleware = require('./middlewares/middleware');
