@@ -3,7 +3,6 @@ env:
   - CXX=g++-4.8
 before_script:
   - sleep 15
-  - sudo /usr/share/elasticsearch/bin/elasticsearch -v --default.path.conf=/etc/elasticsearch/
   - curl http://localhost:9200/
 services:
   - elasticsearch
