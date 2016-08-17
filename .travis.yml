@@ -1,4 +1,6 @@
 sudo: required
+env:
+  - CXX=g++-4.8
 before_script:
   - sleep 15
   - sudo /usr/share/elasticsearch/bin/elasticsearch -v --default.path.conf=/etc/elasticsearch/
@@ -15,5 +17,7 @@ addons:
   apt:
     sources:
       - elasticsearch-2.x
+      - ubuntu-toolchain-r-test
     packages:
-      elasticsearch
+      - elasticsearch
+      - g++-4.8
