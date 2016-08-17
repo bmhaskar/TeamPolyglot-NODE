@@ -1,7 +1,6 @@
 sudo: required
 before_script:
   - sleep 15
-  - script:
   - elasticsearch -v
   - curl http://localhost:9200/
 services:
