@@ -1,4 +1,6 @@
 sudo: required
+before_script:
+  - sleep 10
 services:
   - elasticsearch
   - mongodb
